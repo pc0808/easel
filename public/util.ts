@@ -77,6 +77,12 @@ const operations: operation[] = [
     method: "DELETE",
     fields: { id: "input" },
   },
+  {
+    name: "Create Board",
+    endpoint: "/api/boards",
+    method: "POST",
+    fields: { caption: "input"},
+  }
 ];
 
 // Do not edit below here.

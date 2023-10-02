@@ -2,7 +2,7 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Friend, Post, User, WebSession } from "./app";
+import { Board, Friend, Post, User, WebSession } from "./app";
 import { ContentDoc, ContentOptions } from "./concepts/content";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
@@ -135,6 +135,25 @@ class Routes {
     const user = WebSession.getUser(session);
     const fromId = (await User.getUserByUsername(from))._id;
     return await Friend.rejectRequest(fromId, user);
+  }
+
+  @Router.get("/boards")
+  async getBoards(author?: string) {
+    let boards;
+    if (author) {
+      const id = (await User.getUserByUsername(author))._id;
+      boards = await Board.getByAuthor(id);
+    } else {
+      boards = await Board.getContents({});
+    }
+    return Responses.boards(boards);
+  }
+
+  @Router.post("/boards")
+  async createBoard(session: WebSessionDoc, caption: string) {
+    const user = WebSession.getUser(session);
+    const created = await Board.create(user, caption, []);
+    return { msg: created.msg, post: await Responses.board(created.content) };
   }
 }
 

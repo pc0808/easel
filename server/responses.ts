@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import { User } from "./app";
 import { ContentAuthorNotMatchError, ContentDoc } from "./concepts/content";
 import { AlreadyFriendsError, FriendNotFoundError, FriendRequestAlreadyExistsError, FriendRequestDoc, FriendRequestNotFoundError } from "./concepts/friend";
@@ -9,7 +10,7 @@ import { Router } from "./framework/router";
  */
 export default class Responses {
   /**
-   * Convert PostDoc into more readable format for the frontend by converting the author id into a username.
+   * Convert ContentDoc<string> into more readable format for the frontend by converting the author id into a username.
    */
   static async post(post: ContentDoc<string> | null) {
     if (!post) {
@@ -20,11 +21,30 @@ export default class Responses {
   }
 
   /**
-   * Same as {@link post} but for an array of PostDoc for improved performance.
+   * Convert ContentDoc<Array<ObjectId>> into more readable format for the frontend by converting the author id into a username.
+   */
+  static async board(board: ContentDoc<Array<ObjectId>> | null) {
+    if (!board) {
+      return board;
+    }
+    const author = await User.getUserById(board.author);
+    return { ...board, author: author.username };
+  }
+
+  /**
+   * Same as {@link post} but for an array of ContentDoc<string> for improved performance.
    */
   static async posts(posts: ContentDoc<string>[]) {
     const authors = await User.idsToUsernames(posts.map((post) => post.author));
     return posts.map((post, i) => ({ ...post, author: authors[i] }));
+  }
+
+  /**
+   * Same as {@link board} but for an array of ContentDoc<Array<ObjectId>> for improved performance.
+   */
+  static async boards(boards: ContentDoc<Array<ObjectId>>[]) {
+    const authors = await User.idsToUsernames(boards.map((board) => board.author));
+    return boards.map((board, i) => ({ ...board, author: authors[i] }));
   }
 
   /**

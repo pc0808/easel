@@ -8,5 +8,5 @@ import WebSessionConcept from "./concepts/websession";
 export const WebSession = new WebSessionConcept();
 export const User = new UserConcept();
 export const Post = new ContentConcept<string>();
-export const Board = new ContentConcept<Set<ObjectId>>(); 
+export const Board = new ContentConcept<Array<ObjectId>>(); 
 export const Friend = new FriendConcept();
