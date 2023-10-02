@@ -1,6 +1,6 @@
 import { User } from "./app";
+import { ContentAuthorNotMatchError, ContentDoc } from "./concepts/content";
 import { AlreadyFriendsError, FriendNotFoundError, FriendRequestAlreadyExistsError, FriendRequestDoc, FriendRequestNotFoundError } from "./concepts/friend";
-import { PostAuthorNotMatchError, PostDoc } from "./concepts/post";
 import { Router } from "./framework/router";
 
 /**
@@ -11,7 +11,7 @@ export default class Responses {
   /**
    * Convert PostDoc into more readable format for the frontend by converting the author id into a username.
    */
-  static async post(post: PostDoc | null) {
+  static async post(post: ContentDoc<string> | null) {
     if (!post) {
       return post;
     }
@@ -22,7 +22,7 @@ export default class Responses {
   /**
    * Same as {@link post} but for an array of PostDoc for improved performance.
    */
-  static async posts(posts: PostDoc[]) {
+  static async posts(posts: ContentDoc<string>[]) {
     const authors = await User.idsToUsernames(posts.map((post) => post.author));
     return posts.map((post, i) => ({ ...post, author: authors[i] }));
   }
@@ -39,7 +39,7 @@ export default class Responses {
   }
 }
 
-Router.registerError(PostAuthorNotMatchError, async (e) => {
+Router.registerError(ContentAuthorNotMatchError, async (e) => {
   const username = (await User.getUserById(e.author)).username;
   return e.formatWith(username, e._id);
 });

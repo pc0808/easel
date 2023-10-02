@@ -3,7 +3,7 @@ import { ObjectId } from "mongodb";
 import { Router, getExpressRouter } from "./framework/router";
 
 import { Friend, Post, User, WebSession } from "./app";
-import { PostDoc, PostOptions } from "./concepts/post";
+import { ContentDoc, ContentOptions } from "./concepts/content";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
 import Responses from "./responses";
@@ -64,20 +64,20 @@ class Routes {
       const id = (await User.getUserByUsername(author))._id;
       posts = await Post.getByAuthor(id);
     } else {
-      posts = await Post.getPosts({});
+      posts = await Post.getContents({});
     }
     return Responses.posts(posts);
   }
 
   @Router.post("/posts")
-  async createPost(session: WebSessionDoc, caption: string, image:string, options?: PostOptions) {
+  async createPost(session: WebSessionDoc, caption: string, image:string, options?: ContentOptions) {
     const user = WebSession.getUser(session);
     const created = await Post.create(user, caption, image, options);
-    return { msg: created.msg, post: await Responses.post(created.post) };
+    return { msg: created.msg, post: await Responses.post(created.content) };
   }
 
   @Router.patch("/posts/:_id")
-  async updatePost(session: WebSessionDoc, _id: ObjectId, update: Partial<PostDoc>) {
+  async updatePost(session: WebSessionDoc, _id: ObjectId, update: Partial<ContentDoc<string>>) {
     const user = WebSession.getUser(session);
     await Post.isAuthor(user, _id);
     return await Post.update(_id, update);

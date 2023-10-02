@@ -56,7 +56,7 @@ export default class ContentConcept<T> {
 
   private sanitizeUpdate(update: Partial<ContentDoc<T>>) {
     // Make sure the update cannot change the author.
-    const allowedUpdates = ["caption", "options"];
+    const allowedUpdates = ["caption", "content"];
     for (const key in update) {
       if (!allowedUpdates.includes(key)) {
         throw new NotAllowedError(`Cannot update '${key}' field!`);
