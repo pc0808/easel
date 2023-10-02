@@ -63,7 +63,7 @@ const operations: operation[] = [
     name: "Create Post",
     endpoint: "/api/posts",
     method: "POST",
-    fields: { content: "input" },
+    fields: { caption: "input", image: "input"},
   },
   {
     name: "Update Post",
