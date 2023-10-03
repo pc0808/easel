@@ -103,15 +103,15 @@ const operations: operation[] = [
   },
   {
     name: "Add Post to Board",
-    endpoint: "api/boards/:id&:postid",
+    endpoint: "api/boards/:board&:post",
     method: "PATCH",
-    fields: { id: "input", postid: "input" },
+    fields: { board: "input", post: "input" },
   },
   {
     name: "Delete Post from Board",
-    endpoint: "api/boards/:id&:postid",
-    method: "DELETE",
-    fields: { id: "input", postid: "input" },
+    endpoint: "api/boards/:board&:post",
+    method: "PUT",
+    fields: { board: "input", post: "input" },
   },
   {
     name: "Delete Board",

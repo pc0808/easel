@@ -168,12 +168,12 @@ class Routes {
     return { msg: created.msg, board: await Responses.board(created.content) };
   }
 
-  @Router.patch("/boards/:_id&:_postid")
-  async addPostToBoard(session: WebSessionDoc, _id: ObjectId, _postid: ObjectId) {
+  @Router.patch("/boards/:_board&:_post")
+  async addPostToBoard(session: WebSessionDoc, _board: ObjectId, _post: ObjectId) {
     const user = WebSession.getUser(session);
-    await Board.isAuthor(user, _id);
+    await Board.isAuthor(user, _board);
     //console.log("Before update id:", _id, "\n post:", _postid, "\n");
-    return await Board.addPostToBoard(_id, _postid);
+    return await Board.addPostToBoard(_board, _post);
   }
 
   @Router.delete("/boards/:_id")
@@ -183,11 +183,11 @@ class Routes {
     return Board.delete(_id);
   }
 
-  @Router.delete("/boards/:_id&:_postid")
-  async deletePostFromBoard(session: WebSessionDoc, _id: ObjectId, _postid: ObjectId) {
+  @Router.put("/boards/:_board&:_post")
+  async deletePostFromBoard(session: WebSessionDoc, _board: ObjectId, _post: ObjectId) {
     const user = WebSession.getUser(session);
-    await Board.isAuthor(user, _id);
-    return await Board.deletePostFromBoard(_id, _postid);
+    await Board.isAuthor(user, _board);
+    return await Board.deletePostFromBoard(_board, _post);
   }
 
 }
