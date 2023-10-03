@@ -119,6 +119,12 @@ const operations: operation[] = [
     method: "DELETE",
     fields: { id: "input" },
   },
+  {
+    name: "Create Tag",
+    endpoint: "/api/tags",
+    method: "POST",
+    fields: { tagName: "input" },
+  }
 ];
 
 // Do not edit below here.

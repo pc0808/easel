@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import { Post } from "../app";
 import ContentConcept from "./content";
+import { BadValuesError } from "./errors";
 
 export default class BoardConcept extends ContentConcept<ObjectId[]>{
     //SPECIFIC to board: 
@@ -32,11 +33,17 @@ export default class BoardConcept extends ContentConcept<ObjectId[]>{
     async postNotInBoard(_id: ObjectId, _postid: ObjectId) {
         const board = (await this.getContentByID(_id)).PostBoard;
         //console.log(_postid.toHexString, board?.content);
-        return board?.content.filter(post => (post.toString() === _postid.toString())).length === 0;
+        const diff = board?.content.filter(post => (post.toString() === _postid.toString())).length;
+        if (diff !== 0) {
+            throw new BadValuesError("Cannot add, already in board");
+        }
     }
     async postInBoard(_id: ObjectId, _postid: ObjectId) {
         const board = (await this.getContentByID(_id)).PostBoard;
         console.log(_postid.toHexString, board?.content);
-        return board?.content.filter(post => (post.toString() === _postid.toString())).length !== 0;
+        const diff = board?.content.filter(post => (post.toString() === _postid.toString())).length;
+        if (diff === 0) {
+            throw new BadValuesError("Cannot delete if not already existing in board");
+        }
     }
 }

@@ -1,6 +1,7 @@
 import BoardConcept from "./concepts/board";
 import ContentConcept from "./concepts/content";
 import FriendConcept from "./concepts/friend";
+import TagsConcept from "./concepts/tags";
 import UserConcept from "./concepts/user";
 import WebSessionConcept from "./concepts/websession";
 
@@ -10,3 +11,5 @@ export const User = new UserConcept();
 export const Post = new ContentConcept<string>("Posts");
 export const Board = new BoardConcept("Boards");
 export const Friend = new FriendConcept();
+export const PostTags = new TagsConcept("Post Tags");
+export const BoardTags = new TagsConcept("Board Tags"); 
