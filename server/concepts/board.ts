@@ -4,10 +4,10 @@ import DocCollection from "../framework/doc";
 import ContentConcept, { ContentAuthorNotMatchError, ContentDoc, ContentOptions } from "./content";
 import { NotFoundError } from "./errors";
 
-export default class BoardConcept implements ContentConcept<ObjectId[]>{
+export default class BoardConcept extends ContentConcept<ObjectId[]>{
     public readonly boards = new DocCollection<ContentDoc<ObjectId[]>>("Boards");
 
-    async create(author: ObjectId, caption: string, content = [], options?: ContentOptions) {
+    async create(author: ObjectId, caption: string, content: ObjectId[], options?: ContentOptions) {
         const _id = await this.boards.createOne({ author, caption, content, options });
         return { msg: "Content successfully created!", content: await this.boards.readOne({ _id }) };
     }
@@ -45,12 +45,18 @@ export default class BoardConcept implements ContentConcept<ObjectId[]>{
         }
     }
 
+    //SPECIFIC to board: 
     async addPostToBoard(_id: ObjectId, _postid: ObjectId) {
         await this.postNotInBoard(_id, _postid);
+        const board = (await this.getContentByID(_id)).content;
+        const update = board?.content.push(_postid);
     }
     async postNotInBoard(_id: ObjectId, _postid: ObjectId) {
-        const board = await this.getContentByID(_id);
-        //return board.content?.indexOf(_postid) === -1;
+        const board = (await this.getContentByID(_id)).content;
+        return board?.content.indexOf(_postid) === -1;
     }
-
+    async postInBoard(_id: ObjectId, _postid: ObjectId) {
+        const board = (await this.getContentByID(_id)).content;
+        return !(board?.content.indexOf(_postid) === -1);
+    }
 }

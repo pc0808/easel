@@ -1,10 +1,10 @@
 import { Filter, ObjectId } from "mongodb";
 
-import { BaseDoc } from "../framework/doc";
-import { NotAllowedError } from "./errors";
+import DocCollection, { BaseDoc } from "../framework/doc";
+import { NotAllowedError, NotFoundError } from "./errors";
 
 export interface ContentOptions {
-  
+
 }
 
 export interface ContentDoc<T> extends BaseDoc {
@@ -14,21 +14,64 @@ export interface ContentDoc<T> extends BaseDoc {
   options?: ContentOptions;
 }
 
-export interface Response{
-  msg: string;
-}
+export default class ContentConcept<T>{
+  public readonly contents;
 
-export interface ContentResponse<T> extends Response{
-  content: ContentDoc<T>; 
-}
+  public constructor(name: string) {
+    this.contents = new DocCollection<ContentDoc<T>>(name);
+  }
 
-export default interface ContentConcept<T> {
-  //create(author: ObjectId, caption: string, content:T, options?: ContentOptions): any;
-  getContents(query: Filter<ContentDoc<T>>): any;
-  getByAuthor(author: ObjectId): any;
-  getContentByID(_id: ObjectId): any;
-  delete(_id: ObjectId): any; 
-  isAuthor(user: ObjectId, _id: ObjectId): any; 
+  async create(author: ObjectId, caption: string, content: T, options?: ContentOptions) {
+    const _id = await this.contents.createOne({ author, caption, content, options });
+    return { msg: "Content successfully created!", content: await this.contents.readOne({ _id }) };
+  }
+
+  async getContents(query: Filter<ContentDoc<T>>) {
+    const contents = await this.contents.readMany(query, {
+      sort: { dateUpdated: -1 },
+    });
+    return contents;
+  }
+
+  async getByAuthor(author: ObjectId) {
+    return await this.getContents({ author });
+  }
+
+  async getContentByID(_id: ObjectId) {
+    const content = await this.contents.readOne({ _id });
+    if (content) {
+      return { msg: "Read successful!", content: content };
+    } else {
+      return { msg: "Read failure" };
+    }
+  }
+  async delete(_id: ObjectId) {
+    await this.contents.deleteOne({ _id });
+    return { msg: "Content deleted successfully!" };
+  }
+  async isAuthor(user: ObjectId, _id: ObjectId) {
+    const content = await this.contents.readOne({ _id });
+    if (!content) {
+      throw new NotFoundError(`Content ${_id} does not exist!`);
+    }
+    if (content.author.toString() !== user.toString()) {
+      throw new ContentAuthorNotMatchError(user, _id);
+    }
+  }
+  async update(_id: ObjectId, update: Partial<ContentDoc<T>>) {
+    this.sanitizeUpdate(update);
+    await this.contents.updateOne({ _id }, update);
+    return { msg: "Content successfully updated!" };
+  }
+  private sanitizeUpdate(update: Partial<ContentDoc<T>>) {
+    // Make sure the update cannot change the author.
+    const allowedUpdates = ["caption", "content"];
+    for (const key in update) {
+      if (!allowedUpdates.includes(key)) {
+        throw new NotAllowedError(`Cannot update '${key}' field!`);
+      }
+    }
+  }
 }
 
 export class ContentAuthorNotMatchError extends NotAllowedError {

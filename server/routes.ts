@@ -163,9 +163,9 @@ class Routes {
   }
 
   // @Router.patch("/boards/:_id")
-  // async postToBoard(session: WebSessionDoc, _id: ObjectId, _postid: ObjectId){
+  // async postToBoard(session: WebSessionDoc, _id: ObjectId, _postid: ObjectId) {
   //   const user = WebSession.getUser(session);
-  //   await Board.isAuthor(user, _id); 
+  //   await Board.isAuthor(user, _id);
   //   return await Board.update(_id, update);
   // }
 }
