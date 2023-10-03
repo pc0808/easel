@@ -1,25 +1,32 @@
 import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
+import ContentConcept from "./content";
 import { BadValuesError, NotAllowedError, NotFoundError } from "./errors";
-
 
 export interface TagsDoc extends BaseDoc {
   tagName: string;
   content: ObjectId[];
 }
 
-export default class TagsConcept {
-  public readonly tagged;
+const NOT_ALLOWED_TAGS: Set<string> = new Set([
+  "", "easel"
+]);
 
-  public constructor(name: string) {
+export default class TagsConcept<T> {
+  public readonly tagged;
+  private readonly allContent: ContentConcept<T>;
+
+  public constructor(name: string, allContent: ContentConcept<T>) {
     this.tagged = new DocCollection<TagsDoc>(name);
+    this.allContent = allContent;
   }
 
   /** makes new tag */
   async create(tagName: string) {
     await this.canCreate(tagName);
+    this.tagIsAllowed(tagName);
     const _id = await this.tagged.createOne({ tagName: tagName, content: [] });
-    return { msg: "Tag created successfully!", user: await this.tagged.readOne({ _id }) };
+    return { msg: "Tag created successfully!", tag: await this.tagged.readOne({ _id }) };
   }
   /** deletes made tag */
   async delete(_id: ObjectId) {
@@ -44,7 +51,7 @@ export default class TagsConcept {
     if (content) {
       return { msg: "Read successful!", taggedContent: content };
     } else {
-      return { msg: "Read failure" };
+      throw new NotFoundError("Content with such tag does not exist");
     }
   }
   /** taken from starter code, updates existing data */
@@ -56,6 +63,7 @@ export default class TagsConcept {
   /** adds post/board under given tag */
   async addContent(_id: ObjectId, content: ObjectId) {
     await this.tagNotInContent(_id, content);
+    await this.contentSameT(content);
     const tagData = (await this.getContent(_id)).PostBoard;
     tagData?.content.push(content);
     await this.update(_id, { content: tagData?.content });
@@ -101,4 +109,17 @@ export default class TagsConcept {
       }
     }
   }
+  private async contentSameT(content: ObjectId) {
+    const post = await this.allContent.getContentByID(content);
+    if (!post.PostBoard) {
+      throw new NotFoundError("Can only add tags to elts of same type T");
+    }
+  }
+
+  private tagIsAllowed(tagName: string) {
+    if (NOT_ALLOWED_TAGS.has(tagName)) {
+      throw new BadValuesError("This tagname is not allowed");
+    }
+  }
+
 }

@@ -1,3 +1,4 @@
+import { ObjectId } from "mongodb";
 import BoardConcept from "./concepts/board";
 import ContentConcept from "./concepts/content";
 import FriendConcept from "./concepts/friend";
@@ -11,5 +12,5 @@ export const User = new UserConcept();
 export const Post = new ContentConcept<string>("Posts");
 export const Board = new BoardConcept("Boards");
 export const Friend = new FriendConcept();
-export const PostTags = new TagsConcept("Post Tags");
-export const BoardTags = new TagsConcept("Board Tags"); 
+export const PostTags = new TagsConcept<string>("Post Tags", Post);
+export const BoardTags = new TagsConcept<ObjectId[]>("Board Tags", Board); 

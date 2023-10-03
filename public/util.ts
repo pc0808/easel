@@ -120,8 +120,26 @@ const operations: operation[] = [
     fields: { id: "input" },
   },
   {
-    name: "Create Tag",
-    endpoint: "/api/tags",
+    name: "Get Posts by Tag",
+    endpoint: "/api/posts/tags",
+    method: "GET",
+    fields: { tagName: "input" },
+  },
+  {
+    name: "Get Boards by Tag",
+    endpoint: "/api/boards/tags",
+    method: "GET",
+    fields: { tagName: "input" },
+  },
+  {
+    name: "Create Post Tag",
+    endpoint: "/api/posts/tags",
+    method: "POST",
+    fields: { tagName: "input" },
+  },
+  {
+    name: "Create Board Tag",
+    endpoint: "/api/boards/tags",
     method: "POST",
     fields: { tagName: "input" },
   }

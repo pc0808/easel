@@ -2,13 +2,16 @@ import { ObjectId } from "mongodb";
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Board, Friend, Post, User, WebSession } from "./app";
+import { Board, BoardTags, Friend, Post, PostTags, User, WebSession } from "./app";
 import { ContentDoc, ContentOptions } from "./concepts/content";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
 import Responses from "./responses";
 
 class Routes {
+  ///////////////////////////////////////
+  // USER+SESSION CONCEPT DOWN BELOW ////
+  ///////////////////////////////////////
   @Router.get("/session")
   async getSessionUser(session: WebSessionDoc) {
     const user = WebSession.getUser(session);
@@ -57,6 +60,9 @@ class Routes {
     return { msg: "Logged out!" };
   }
 
+  ////////////////////////////////
+  // POSTS CONCEPT DOWN BELOW ////
+  ////////////////////////////////
   @Router.get("/posts")
   async getPosts(author?: string) {
     let posts;
@@ -96,6 +102,9 @@ class Routes {
     return Post.delete(_id);
   }
 
+  //////////////////////////////////
+  // FRIENDS CONCEPT DOWN BELOW ////
+  //////////////////////////////////
   @Router.get("/friends")
   async getFriends(session: WebSessionDoc) {
     const user = WebSession.getUser(session);
@@ -143,6 +152,9 @@ class Routes {
     return await Friend.rejectRequest(fromId, user);
   }
 
+  /////////////////////////////////
+  // BOARDS CONCEPT DOWN BELOW ////
+  /////////////////////////////////
   @Router.get("/boards")
   async getBoards(author?: string) {
     let boards;
@@ -189,6 +201,38 @@ class Routes {
     await Board.isAuthor(user, _board);
     return await Board.deletePostFromBoard(_board, _post);
   }
+
+  ////////////////////////////////
+  // TAGS CONCEPT DOWN BELOW /////
+  ////////////////////////////////
+  @Router.get("/posts/tags")
+  async getTaggedPosts(session: WebSessionDoc, tagName: string) {
+    WebSession.isLoggedIn(session);
+    const posts = (await PostTags.getContentByTagName(tagName));
+    return { msg: posts.msg, posts: posts.taggedContent }
+  }
+
+  @Router.get("/boards/tags")
+  async getTaggedBoards(session: WebSessionDoc, tagName: string) {
+    WebSession.isLoggedIn(session);
+    const boards = (await BoardTags.getContentByTagName(tagName));
+    return { msg: boards.msg, posts: boards.taggedContent }
+  }
+
+  @Router.post("/posts/tags")
+  async createPostTag(session: WebSessionDoc, tagName: string) {
+    WebSession.isLoggedIn(session);
+    const created = await PostTags.create(tagName);
+    return { msg: created.msg, post: created.tag };
+  }
+
+  @Router.post("/boards/tags")
+  async createBoardTag(session: WebSessionDoc, tagName: string) {
+    WebSession.isLoggedIn(session);
+    const created = await BoardTags.create(tagName);
+    return { msg: created.msg, post: created.tag };
+  }
+
 
 }
 
