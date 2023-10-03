@@ -69,13 +69,13 @@ const operations: operation[] = [
     name: "Create Post",
     endpoint: "/api/posts",
     method: "POST",
-    fields: { caption: "input", content: "input"},
+    fields: { caption: "input", content: "input" },
   },
   {
     name: "Update Post",
     endpoint: "/api/posts/:id",
     method: "PATCH",
-    fields: { id: "input", update: { caption: "input", content: "input"} },
+    fields: { id: "input", update: { caption: "input", content: "input" } },
   },
   {
     name: "Delete Post",
@@ -87,7 +87,7 @@ const operations: operation[] = [
     name: "Create Board",
     endpoint: "/api/boards",
     method: "POST",
-    fields: { caption: "input"},
+    fields: { caption: "input" },
   },
   {
     name: "Get Boards",
@@ -96,10 +96,28 @@ const operations: operation[] = [
     fields: { author: "input" },
   },
   {
-    name: "Add Post to Board",
+    name: "Get Board by ID",
     endpoint: "/api/boards/:id",
+    method: "GET",
+    fields: { id: "input" },
+  },
+  {
+    name: "Add Post to Board",
+    endpoint: "api/boards/:id&:postid",
     method: "PATCH",
-    fields: { id: "input", },
+    fields: { id: "input", postid: "input" },
+  },
+  {
+    name: "Delete Post from Board",
+    endpoint: "api/boards/:id&:postid",
+    method: "DELETE",
+    fields: { id: "input", postid: "input" },
+  },
+  {
+    name: "Delete Board",
+    endpoint: "/api/boards/:id",
+    method: "DELETE",
+    fields: { id: "input" },
   },
 ];
 

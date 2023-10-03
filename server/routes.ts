@@ -72,7 +72,7 @@ class Routes {
   @Router.get("/posts/:_id")
   async getPostByID(_id: ObjectId) {
     let post = await Post.getContentByID(_id);
-    return { msg: post.msg, post: post.content };
+    return { msg: post.msg, post: post.PostBoard };
   }
 
   @Router.post("/posts")
@@ -155,6 +155,12 @@ class Routes {
     return Responses.boards(boards);
   }
 
+  @Router.get("/boards/:_id")
+  async getBoardByID(_id: ObjectId) {
+    let board = await Board.getContentByID(_id);
+    return { msg: board.msg, board: board.PostBoard };
+  }
+
   @Router.post("/boards")
   async createBoard(session: WebSessionDoc, caption: string) {
     const user = WebSession.getUser(session);
@@ -162,12 +168,28 @@ class Routes {
     return { msg: created.msg, board: await Responses.board(created.content) };
   }
 
-  // @Router.patch("/boards/:_id")
-  // async postToBoard(session: WebSessionDoc, _id: ObjectId, _postid: ObjectId) {
-  //   const user = WebSession.getUser(session);
-  //   await Board.isAuthor(user, _id);
-  //   return await Board.update(_id, update);
-  // }
+  @Router.patch("/boards/:_id&:_postid")
+  async addPostToBoard(session: WebSessionDoc, _id: ObjectId, _postid: ObjectId) {
+    const user = WebSession.getUser(session);
+    await Board.isAuthor(user, _id);
+    //console.log("Before update id:", _id, "\n post:", _postid, "\n");
+    return await Board.addPostToBoard(_id, _postid);
+  }
+
+  @Router.delete("/boards/:_id")
+  async deleteBoard(session: WebSessionDoc, _id: ObjectId) {
+    const user = WebSession.getUser(session);
+    await Board.isAuthor(user, _id);
+    return Board.delete(_id);
+  }
+
+  @Router.delete("/boards/:_id&:_postid")
+  async deletePostFromBoard(session: WebSessionDoc, _id: ObjectId, _postid: ObjectId) {
+    const user = WebSession.getUser(session);
+    await Board.isAuthor(user, _id);
+    return await Board.deletePostFromBoard(_id, _postid);
+  }
+
 }
 
 export default getExpressRouter(new Routes());

@@ -1,62 +1,42 @@
-import { Filter, ObjectId } from "mongodb";
-
-import DocCollection from "../framework/doc";
-import ContentConcept, { ContentAuthorNotMatchError, ContentDoc, ContentOptions } from "./content";
-import { NotFoundError } from "./errors";
+import { ObjectId } from "mongodb";
+import { Post } from "../app";
+import ContentConcept from "./content";
 
 export default class BoardConcept extends ContentConcept<ObjectId[]>{
-    public readonly boards = new DocCollection<ContentDoc<ObjectId[]>>("Boards");
-
-    async create(author: ObjectId, caption: string, content: ObjectId[], options?: ContentOptions) {
-        const _id = await this.boards.createOne({ author, caption, content, options });
-        return { msg: "Content successfully created!", content: await this.boards.readOne({ _id }) };
-    }
-
-    async getContents(query: Filter<ContentDoc<ObjectId[]>>) {
-        const contents = await this.boards.readMany(query, {
-            sort: { dateUpdated: -1 },
-        });
-        return contents;
-    }
-
-    async getByAuthor(author: ObjectId) {
-        return await this.getContents({ author });
-    }
-
-    async getContentByID(_id: ObjectId) {
-        const content = await this.boards.readOne({ _id });
-        if (content) {
-            return { msg: "Read successful!", content: content };
-        } else {
-            return { msg: "Read failure" };
-        }
-    }
-    async delete(_id: ObjectId) {
-        await this.boards.deleteOne({ _id });
-        return { msg: "Content deleted successfully!" };
-    }
-    async isAuthor(user: ObjectId, _id: ObjectId) {
-        const content = await this.boards.readOne({ _id });
-        if (!content) {
-            throw new NotFoundError(`Content ${_id} does not exist!`);
-        }
-        if (content.author.toString() !== user.toString()) {
-            throw new ContentAuthorNotMatchError(user, _id);
-        }
-    }
-
     //SPECIFIC to board: 
     async addPostToBoard(_id: ObjectId, _postid: ObjectId) {
         await this.postNotInBoard(_id, _postid);
-        const board = (await this.getContentByID(_id)).content;
-        const update = board?.content.push(_postid);
+        const board = (await this.getContentByID(_id)).PostBoard;
+        await this.contentExists(board);
+        const post = (await Post.getContentByID(_postid)).PostBoard;
+        await Post.contentExists(post);
+        // console.log("In function: ", _postid, "\n");
+        // console.log("In function: ", board, "\n");
+        board?.content.push(_postid);
+        //console.log("In function after push: ", board, "\n", board?.content);
+        await this.update(_id, { content: board?.content });
+        return { msg: "Board successfully updated" };
+    }
+    async deletePostFromBoard(_id: ObjectId, _postid: ObjectId) {
+        await this.postInBoard(_id, _postid);
+        const board = (await this.getContentByID(_id)).PostBoard;
+        await this.contentExists(board);
+        const post = (await Post.getContentByID(_postid)).PostBoard;
+        await Post.contentExists(post);
+
+        const newBoard = board?.content.filter(post => (post !== _postid));
+        //filter returns new array so no need for aliasing 
+        await this.update(_id, { content: newBoard });
+        return { msg: "Board successfully updated" };
     }
     async postNotInBoard(_id: ObjectId, _postid: ObjectId) {
-        const board = (await this.getContentByID(_id)).content;
-        return board?.content.indexOf(_postid) === -1;
+        const board = (await this.getContentByID(_id)).PostBoard;
+        //console.log(_postid.toHexString, board?.content);
+        return board?.content.filter(post => (post.equals(_postid))).length === 0;
     }
     async postInBoard(_id: ObjectId, _postid: ObjectId) {
-        const board = (await this.getContentByID(_id)).content;
-        return !(board?.content.indexOf(_postid) === -1);
+        const board = (await this.getContentByID(_id)).PostBoard;
+        console.log(_postid.toHexString, board?.content);
+        return board?.content.filter(post => (post.equals(_postid))).length !== 0;
     }
 }

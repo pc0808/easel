@@ -40,7 +40,7 @@ export default class ContentConcept<T>{
   async getContentByID(_id: ObjectId) {
     const content = await this.contents.readOne({ _id });
     if (content) {
-      return { msg: "Read successful!", content: content };
+      return { msg: "Read successful!", PostBoard: content };
     } else {
       return { msg: "Read failure" };
     }
@@ -62,6 +62,11 @@ export default class ContentConcept<T>{
     this.sanitizeUpdate(update);
     await this.contents.updateOne({ _id }, update);
     return { msg: "Content successfully updated!" };
+  }
+  async contentExists(board: ContentDoc<T> | undefined) {
+    if (!board) {
+      throw new NotAllowedError('Board does not exist ');
+    }
   }
   private sanitizeUpdate(update: Partial<ContentDoc<T>>) {
     // Make sure the update cannot change the author.
