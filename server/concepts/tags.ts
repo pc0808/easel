@@ -78,8 +78,10 @@ export default class TagsConcept<T> {
   }
   /** checks tag isn't already created */
   private async canCreate(tagName: string) {
-    const ret = await this.getContentByTagName(tagName);
-    if (ret.taggedContent) throw new BadValuesError("Tag already created");
+    const content = await this.tagged.readOne({ tagName });
+    if (content) {
+      throw new BadValuesError("Tag already created");
+    } //else: means no content exists --> we are safe to create tag 
   }
   /**checks tag has already been created */
   private async alreadyCreated(_id: ObjectId) {

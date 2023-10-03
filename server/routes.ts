@@ -205,35 +205,50 @@ class Routes {
   ////////////////////////////////
   // TAGS CONCEPT DOWN BELOW /////
   ////////////////////////////////
-  @Router.get("/posts/tags")
+  @Router.get("/posts/tags/:tagName")
   async getTaggedPosts(session: WebSessionDoc, tagName: string) {
     WebSession.isLoggedIn(session);
-    const posts = (await PostTags.getContentByTagName(tagName));
+    const posts = await PostTags.getContentByTagName(tagName);
     return { msg: posts.msg, posts: posts.taggedContent }
   }
 
-  @Router.get("/boards/tags")
+  @Router.get("/boards/tags/:tagName")
   async getTaggedBoards(session: WebSessionDoc, tagName: string) {
     WebSession.isLoggedIn(session);
-    const boards = (await BoardTags.getContentByTagName(tagName));
-    return { msg: boards.msg, posts: boards.taggedContent }
+    const boards = await BoardTags.getContentByTagName(tagName);
+    return { msg: boards.msg, boards: boards.taggedContent }
   }
 
-  @Router.post("/posts/tags")
+  @Router.post("/posts/tags/:tagName")
   async createPostTag(session: WebSessionDoc, tagName: string) {
     WebSession.isLoggedIn(session);
     const created = await PostTags.create(tagName);
     return { msg: created.msg, post: created.tag };
   }
 
-  @Router.post("/boards/tags")
+  @Router.post("/boards/tags/:tagName")
   async createBoardTag(session: WebSessionDoc, tagName: string) {
     WebSession.isLoggedIn(session);
     const created = await BoardTags.create(tagName);
     return { msg: created.msg, post: created.tag };
   }
 
+  @Router.patch("/posts/:_post&:_tagName")
+  async addTagToPost(session: WebSessionDoc, post: ObjectId, tagName: string) {
+    console.log("We are here");
+    const user = WebSession.getUser(session);
+    await Post.isAuthor(user, post);
+    const tag = (await PostTags.getContentByTagName(tagName)).taggedContent;
+    return await PostTags.addContent(tag._id, post);
+  }
 
+  @Router.patch("/boards/:_board&:_tagName")
+  async addTagToBoard(session: WebSessionDoc, board: ObjectId, tagName: string) {
+    const user = WebSession.getUser(session);
+    await Board.isAuthor(user, board);
+    const tag = (await BoardTags.getContentByTagName(tagName)).taggedContent;
+    return await BoardTags.addContent(tag._id, board);
+  }
 }
 
 export default getExpressRouter(new Routes());

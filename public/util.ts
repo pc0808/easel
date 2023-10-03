@@ -121,28 +121,40 @@ const operations: operation[] = [
   },
   {
     name: "Get Posts by Tag",
-    endpoint: "/api/posts/tags",
+    endpoint: "/api/posts/tags/:tagName",
     method: "GET",
     fields: { tagName: "input" },
   },
   {
     name: "Get Boards by Tag",
-    endpoint: "/api/boards/tags",
+    endpoint: "/api/boards/tags/:tagName",
     method: "GET",
     fields: { tagName: "input" },
   },
   {
     name: "Create Post Tag",
-    endpoint: "/api/posts/tags",
+    endpoint: "/api/posts/tags/:tagName",
     method: "POST",
     fields: { tagName: "input" },
   },
   {
     name: "Create Board Tag",
-    endpoint: "/api/boards/tags",
+    endpoint: "/api/boards/tags/:tagName",
     method: "POST",
     fields: { tagName: "input" },
-  }
+  },
+  {
+    name: "Add Tag to Post",
+    endpoint: "api/posts/:post&:tagName",
+    method: "PATCH",
+    fields: { post: "input", tagName: "input" },
+  },
+  {
+    name: "Add Tag to Board",
+    endpoint: "api/boards/:board&:tagName",
+    method: "PATCH",
+    fields: { board: "input", tagName: "input" },
+  },
 ];
 
 // Do not edit below here.
