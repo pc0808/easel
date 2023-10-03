@@ -32,6 +32,7 @@ export default class TagsConcept<T> {
   async delete(_id: ObjectId) {
     await this.tagged.deleteOne({ _id });
     return { msg: "Tag deleted!" };
+    //BETA: for every content tagged: delete from its contentDoc.tagged 
   }
   /**
    * gets content by tag object id 
@@ -62,19 +63,27 @@ export default class TagsConcept<T> {
   }
   /** adds post/board under given tag */
   async addContent(_id: ObjectId, content: ObjectId) {
-    await this.tagNotInContent(_id, content);
-    await this.contentSameT(content);
-    const tagData = (await this.getContent(_id)).PostBoard;
-    tagData.content.push(content);
-    await this.update(_id, { content: tagData.content });
+    //WILL MODIFY IN BETA FOR SYNCH W contentDoc.tagged 
+
+    // await this.tagNotInContent(_id, content);
+    // await this.contentSameT(content);
+    // const tagData = (await this.getContent(_id)).PostBoard;
+    // tagData.content.push(content);
+    // await this.update(_id, { content: tagData.content });
+
+    throw new Error("Not yet implemented!");
   }
   /** */
   async deleteContent(_id: ObjectId, content: ObjectId) {
-    await this.tagInContent(_id, content);
-    const oldContent = (await this.getContent(_id)).PostBoard?.content;
-    const newContent = oldContent?.filter(post => (post !== content));
-    //filter returns new array so no need for aliasing 
-    await this.update(_id, { content: newContent });
+    //WILL MODIFY IN BETA FOR SYNCH W contentDoc.tagged 
+
+    // await this.tagInContent(_id, content);
+    // const oldContent = (await this.getContent(_id)).PostBoard?.content;
+    // const newContent = oldContent?.filter(post => (post.toString() !== content.toString()));
+    // //filter returns new array so no need for aliasing 
+    // await this.update(_id, { content: newContent });
+
+    throw new Error("Not yet implemented!");
   }
   /** checks tag isn't already created */
   private async canCreate(tagName: string) {
@@ -90,17 +99,21 @@ export default class TagsConcept<T> {
   }
   /** Checks given post/board not already in tags */
   private async tagNotInContent(_id: ObjectId, content: ObjectId) {
-    await this.alreadyCreated(_id);
-    const result = (await this.getContent(_id)).PostBoard.content;
-    const diff = result?.filter(post => (post.toString() === content.toString())).length;
-    if (diff !== 0) throw new BadValuesError("Post already tagged like this");
+    // await this.alreadyCreated(_id);
+    // const result = (await this.getContent(_id)).PostBoard.content;
+    // const diff = result?.filter(post => (post.toString() === content.toString())).length;
+    // if (diff !== 0) throw new BadValuesError("Post already tagged like this");
+
+    throw new Error("Not yet implemented!");
   }
   /** Checks given post/board is already in tags */
   private async tagInContent(_id: ObjectId, content: ObjectId) {
-    await this.alreadyCreated(_id);
-    const result = (await this.getContent(_id)).PostBoard?.content;
-    const diff = result?.filter(post => (post.toString() === content.toString())).length;
-    if (diff === 0) throw new BadValuesError("Post not yet tagged like this");
+    // await this.alreadyCreated(_id);
+    // const result = (await this.getContent(_id)).PostBoard?.content;
+    // const diff = result?.filter(post => (post.toString() === content.toString())).length;
+    // if (diff === 0) throw new BadValuesError("Post not yet tagged like this");
+
+    throw new Error("Not yet implemented!");
   }
   private sanitizeUpdate(update: Partial<TagsDoc>) {
     // Make sure the update cannot change the author.

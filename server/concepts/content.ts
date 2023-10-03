@@ -11,6 +11,7 @@ export interface ContentDoc<T> extends BaseDoc {
   author: ObjectId;
   caption: string;
   content: T;
+  tagged: string[];
   options?: ContentOptions;
 }
 
@@ -23,6 +24,7 @@ export default class ContentConcept<T>{
 
   async create(author: ObjectId, caption: string, content: T, options?: ContentOptions) {
     const _id = await this.contents.createOne({ author, caption, content, options });
+    //BETA: UPDATE PROFILE AS WELL 
     return { msg: "Content successfully created!", content: await this.contents.readOne({ _id }) };
   }
 
@@ -48,6 +50,11 @@ export default class ContentConcept<T>{
   async delete(_id: ObjectId) {
     await this.contents.deleteOne({ _id });
     return { msg: "Content deleted successfully!" };
+
+    //IMPLEMENT IN BETA:
+    // for(tag in _id data from db) 
+    //    get tag.data from db
+    //    tag.content.remove(_id)
   }
   async isAuthor(user: ObjectId, _id: ObjectId) {
     const content = await this.contents.readOne({ _id });
@@ -68,6 +75,21 @@ export default class ContentConcept<T>{
       throw new NotAllowedError('Board does not exist ');
     }
   }
+  //BETA:
+  async getUserProfile(_id: ObjectId) {
+    throw new Error("Not yet implemented!");
+  }
+
+  async getTags(_id: ObjectId): Promise<string[]> {
+    throw new Error("Not yet implemented");
+  }
+  async addTag(tagName: string, _id: ObjectId) {
+    throw new Error("Not yet implemented");
+  }
+  async deleteTag(tagName: string, _id: ObjectId) {
+    throw new Error("Not yet implemented");
+  }
+
   private sanitizeUpdate(update: Partial<ContentDoc<T>>) {
     // Make sure the update cannot change the author.
     const allowedUpdates = ["caption", "content"];

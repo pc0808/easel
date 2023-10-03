@@ -1,6 +1,8 @@
 import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
 import { BadValuesError, NotAllowedError, NotFoundError } from "./errors";
+// import { ProfileDoc } from "./profile";
+// import { Profile } from "../app";
 
 export interface UserDoc extends BaseDoc {
   username: string;
@@ -9,11 +11,15 @@ export interface UserDoc extends BaseDoc {
 
 export default class UserConcept {
   public readonly users = new DocCollection<UserDoc>("users");
+  // maps: each username to a profile 
 
   async create(username: string, password: string) {
     await this.canCreate(username, password);
     const _id = await this.users.createOne({ username, password });
     return { msg: "User created successfully!", user: await this.users.readOne({ _id }) };
+
+    //BETA:
+    // create profile for new username in Profile instance 
   }
 
   private sanitizeUser(user: UserDoc) {
@@ -64,6 +70,8 @@ export default class UserConcept {
   async update(_id: ObjectId, update: Partial<UserDoc>) {
     if (update.username !== undefined) {
       await this.isUsernameUnique(update.username);
+      //BETA:
+      //update user's profile --> which should update user's posts/boards as well 
     }
     await this.users.updateOne({ _id }, update);
     return { msg: "User updated successfully!" };
@@ -71,6 +79,8 @@ export default class UserConcept {
 
   async delete(_id: ObjectId) {
     await this.users.deleteOne({ _id });
+    //BETA:
+    // call delete on user's profile as well 
     return { msg: "User deleted!" };
   }
 
@@ -92,5 +102,10 @@ export default class UserConcept {
     if (await this.users.readOne({ username })) {
       throw new NotAllowedError(`User with username ${username} already exists!`);
     }
+  }
+
+  //BETA: 
+  private async getUserProfile(_id: ObjectId) {
+    throw new Error("Not yet implemented!");
   }
 }

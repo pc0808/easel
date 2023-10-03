@@ -250,6 +250,24 @@ class Routes {
     console.log("Adding tag does work!! but mongoDB sends a strange error");
     return await BoardTags.addContent(tag._id, _board);
   }
+
+  @Router.put("/posts/tags/:tagName&:_post")
+  async deleteTagFromPost(session: WebSessionDoc, _post: ObjectId, tagName: string) {
+    const user = WebSession.getUser(session);
+    await Post.isAuthor(user, _post);
+    const tag = (await PostTags.getContentByTagName(tagName)).taggedContent;
+    console.log("Deleting tag does work!! but mongoDB sends a strange error");
+    return await PostTags.deleteContent(tag._id, _post);
+  }
+
+  @Router.put("/boards/tags/:tagName&:_board")
+  async deleteTagFromBoard(session: WebSessionDoc, _board: ObjectId, tagName: string) {
+    const user = WebSession.getUser(session);
+    await Board.isAuthor(user, _board);
+    const tag = (await BoardTags.getContentByTagName(tagName)).taggedContent;
+    console.log("Deleting tag does work!! but mongoDB sends a strange error");
+    return await BoardTags.deleteContent(tag._id, _board);
+  }
 }
 
 export default getExpressRouter(new Routes());
