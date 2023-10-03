@@ -48,7 +48,7 @@ const operations: operation[] = [
     fields: {},
   },
   {
-    name: "Get Users (empty for all)",
+    name: "Get Users",
     endpoint: "/api/users/:username",
     method: "GET",
     fields: { username: "input" },
@@ -58,6 +58,12 @@ const operations: operation[] = [
     endpoint: "/api/posts",
     method: "GET",
     fields: { author: "input" },
+  },
+  {
+    name: "Get Post by ID",
+    endpoint: "/api/posts/:id",
+    method: "GET",
+    fields: { id: "input" },
   },
   {
     name: "Create Post",
@@ -82,7 +88,19 @@ const operations: operation[] = [
     endpoint: "/api/boards",
     method: "POST",
     fields: { caption: "input"},
-  }
+  },
+  {
+    name: "Get Boards",
+    endpoint: "/api/boards",
+    method: "GET",
+    fields: { author: "input" },
+  },
+  {
+    name: "Add Post to Board",
+    endpoint: "/api/boards/:id",
+    method: "PATCH",
+    fields: { id: "input", },
+  },
 ];
 
 // Do not edit below here.

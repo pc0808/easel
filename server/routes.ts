@@ -69,10 +69,16 @@ class Routes {
     return Responses.posts(posts);
   }
 
+  @Router.get("/posts/:_id")
+  async getPostByID(_id: ObjectId) {
+    let post = await Post.getContentByID(_id);
+    return { msg: post.msg, post: post.content };
+  }
+
   @Router.post("/posts")
-  async createPost(session: WebSessionDoc, caption: string, image:string, options?: ContentOptions) {
+  async createPost(session: WebSessionDoc, caption: string, content: string, options?: ContentOptions) {
     const user = WebSession.getUser(session);
-    const created = await Post.create(user, caption, image, options);
+    const created = await Post.create(user, caption, content, options);
     return { msg: created.msg, post: await Responses.post(created.content) };
   }
 
@@ -153,8 +159,15 @@ class Routes {
   async createBoard(session: WebSessionDoc, caption: string) {
     const user = WebSession.getUser(session);
     const created = await Board.create(user, caption, []);
-    return { msg: created.msg, post: await Responses.board(created.content) };
+    return { msg: created.msg, board: await Responses.board(created.content) };
   }
+
+  // @Router.patch("/boards/:_id")
+  // async postToBoard(session: WebSessionDoc, _id: ObjectId, _postid: ObjectId){
+  //   const user = WebSession.getUser(session);
+  //   await Board.isAuthor(user, _id); 
+  //   return await Board.update(_id, update);
+  // }
 }
 
 export default getExpressRouter(new Routes());
