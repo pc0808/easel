@@ -145,15 +145,27 @@ const operations: operation[] = [
   },
   {
     name: "Add Tag to Post",
-    endpoint: "api/posts/:post&:tagName",
+    endpoint: "api/posts/tags/:tagName&:post",
     method: "PATCH",
-    fields: { post: "input", tagName: "input" },
+    fields: { tagName: "input", post: "input" },
   },
   {
     name: "Add Tag to Board",
-    endpoint: "api/boards/:board&:tagName",
+    endpoint: "api/boards/tags/:tagName&:board",
     method: "PATCH",
-    fields: { board: "input", tagName: "input" },
+    fields: { tagName: "input", board: "input" },
+  },
+  {
+    name: "Delete Tag from Post",
+    endpoint: "api/posts/tags/:tagName&:post",
+    method: "PUT",
+    fields: { tagName: "input", post: "input" },
+  },
+  {
+    name: "Delete Tag from Board",
+    endpoint: "api/boards/tags/:tagName&:board",
+    method: "PUT",
+    fields: { tagName: "input", board: "input" },
   },
 ];
 

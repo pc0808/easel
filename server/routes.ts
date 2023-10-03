@@ -209,14 +209,14 @@ class Routes {
   async getTaggedPosts(session: WebSessionDoc, tagName: string) {
     WebSession.isLoggedIn(session);
     const posts = await PostTags.getContentByTagName(tagName);
-    return { msg: posts.msg, posts: posts.taggedContent }
+    return { msg: posts.msg, posts: posts.taggedContent.content }
   }
 
   @Router.get("/boards/tags/:tagName")
   async getTaggedBoards(session: WebSessionDoc, tagName: string) {
     WebSession.isLoggedIn(session);
     const boards = await BoardTags.getContentByTagName(tagName);
-    return { msg: boards.msg, boards: boards.taggedContent }
+    return { msg: boards.msg, boards: boards.taggedContent.content }
   }
 
   @Router.post("/posts/tags/:tagName")
@@ -233,21 +233,22 @@ class Routes {
     return { msg: created.msg, post: created.tag };
   }
 
-  @Router.patch("/posts/:_post&:_tagName")
-  async addTagToPost(session: WebSessionDoc, post: ObjectId, tagName: string) {
-    console.log("We are here");
+  @Router.patch("/posts/tags/:tagName&:_post")
+  async addTagToPost(session: WebSessionDoc, _post: ObjectId, tagName: string) {
     const user = WebSession.getUser(session);
-    await Post.isAuthor(user, post);
+    await Post.isAuthor(user, _post);
     const tag = (await PostTags.getContentByTagName(tagName)).taggedContent;
-    return await PostTags.addContent(tag._id, post);
+    console.log("Adding tag does work!! but mongoDB sends a strange error");
+    return await PostTags.addContent(tag._id, _post);
   }
 
-  @Router.patch("/boards/:_board&:_tagName")
-  async addTagToBoard(session: WebSessionDoc, board: ObjectId, tagName: string) {
+  @Router.patch("/boards/tags/:tagName&:_board")
+  async addTagToBoard(session: WebSessionDoc, _board: ObjectId, tagName: string) {
     const user = WebSession.getUser(session);
-    await Board.isAuthor(user, board);
+    await Board.isAuthor(user, _board);
     const tag = (await BoardTags.getContentByTagName(tagName)).taggedContent;
-    return await BoardTags.addContent(tag._id, board);
+    console.log("Adding tag does work!! but mongoDB sends a strange error");
+    return await BoardTags.addContent(tag._id, _board);
   }
 }
 

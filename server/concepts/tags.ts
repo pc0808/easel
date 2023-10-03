@@ -42,16 +42,16 @@ export default class TagsConcept<T> {
     if (content) {
       return { msg: "Read successful!", PostBoard: content };
     } else {
-      return { msg: "Read failure" };
+      throw new NotFoundError("Such a tag does not exist");
     }
   }
   /** gets content w that tag name, if exists */
   async getContentByTagName(tagName: string) {
-    const content = await this.tagged.readOne({ tagName });
+    const content = await this.tagged.readOne({ tagName });;
     if (content) {
       return { msg: "Read successful!", taggedContent: content };
     } else {
-      throw new NotFoundError("Content with such tag does not exist");
+      throw new NotFoundError("Such a tag does not exist");
     }
   }
   /** taken from starter code, updates existing data */
@@ -65,8 +65,8 @@ export default class TagsConcept<T> {
     await this.tagNotInContent(_id, content);
     await this.contentSameT(content);
     const tagData = (await this.getContent(_id)).PostBoard;
-    tagData?.content.push(content);
-    await this.update(_id, { content: tagData?.content });
+    tagData.content.push(content);
+    await this.update(_id, { content: tagData.content });
   }
   /** */
   async deleteContent(_id: ObjectId, content: ObjectId) {
@@ -90,14 +90,14 @@ export default class TagsConcept<T> {
   }
   /** Checks given post/board not already in tags */
   private async tagNotInContent(_id: ObjectId, content: ObjectId) {
-    this.alreadyCreated(_id);
-    const result = (await this.getContent(_id)).PostBoard?.content;
+    await this.alreadyCreated(_id);
+    const result = (await this.getContent(_id)).PostBoard.content;
     const diff = result?.filter(post => (post.toString() === content.toString())).length;
     if (diff !== 0) throw new BadValuesError("Post already tagged like this");
   }
   /** Checks given post/board is already in tags */
   private async tagInContent(_id: ObjectId, content: ObjectId) {
-    this.alreadyCreated(_id);
+    await this.alreadyCreated(_id);
     const result = (await this.getContent(_id)).PostBoard?.content;
     const diff = result?.filter(post => (post.toString() === content.toString())).length;
     if (diff === 0) throw new BadValuesError("Post not yet tagged like this");
@@ -113,6 +113,8 @@ export default class TagsConcept<T> {
   }
   private async contentSameT(content: ObjectId) {
     const post = await this.allContent.getContentByID(content);
+    this.allContent.contentExists((await this.allContent.getContentByID(content)).PostBoard);
+
     if (!post.PostBoard) {
       throw new NotFoundError("Can only add tags to elts of same type T");
     }
