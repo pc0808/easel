@@ -22,8 +22,8 @@ export default class ContentConcept<T>{
     this.contents = new DocCollection<ContentDoc<T>>(name);
   }
 
-  async create(author: ObjectId, caption: string, content: T, options?: ContentOptions) {
-    const _id = await this.contents.createOne({ author, caption, content, options });
+  async create(author: ObjectId, caption: string, content: T, tagged = [], options?: ContentOptions) {
+    const _id = await this.contents.createOne({ author, caption, content, tagged, options });
     //BETA: UPDATE PROFILE AS WELL 
     return { msg: "Content successfully created!", content: await this.contents.readOne({ _id }) };
   }
