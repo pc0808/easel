@@ -77,7 +77,7 @@ class Routes {
 
   @Router.get("/posts/:_id")
   async getPostByID(_id: ObjectId) {
-    let post = await Post.getContentByID(_id);
+    const post = await Post.getContentByID(_id);
     return { msg: post.msg, post: post.PostBoard };
   }
 
@@ -169,7 +169,7 @@ class Routes {
 
   @Router.get("/boards/:_id")
   async getBoardByID(_id: ObjectId) {
-    let board = await Board.getContentByID(_id);
+    const board = await Board.getContentByID(_id);
     return { msg: board.msg, board: board.PostBoard };
   }
 
@@ -209,14 +209,14 @@ class Routes {
   async getTaggedPosts(session: WebSessionDoc, tagName: string) {
     WebSession.isLoggedIn(session);
     const posts = await PostTags.getContentByTagName(tagName);
-    return { msg: posts.msg, posts: posts.taggedContent.content }
+    return { msg: posts.msg, posts: posts.taggedContent.content };
   }
 
   @Router.get("/boards/tags/:tagName")
   async getTaggedBoards(session: WebSessionDoc, tagName: string) {
     WebSession.isLoggedIn(session);
     const boards = await BoardTags.getContentByTagName(tagName);
-    return { msg: boards.msg, boards: boards.taggedContent.content }
+    return { msg: boards.msg, boards: boards.taggedContent.content };
   }
 
   @Router.post("/posts/tags/:tagName")

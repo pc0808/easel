@@ -8,9 +8,7 @@ export interface TagsDoc extends BaseDoc {
   content: ObjectId[];
 }
 
-const NOT_ALLOWED_TAGS: Set<string> = new Set([
-  "", "easel"
-]);
+const NOT_ALLOWED_TAGS: Set<string> = new Set(["", "easel"]);
 
 export default class TagsConcept<T> {
   public readonly tagged;
@@ -32,11 +30,11 @@ export default class TagsConcept<T> {
   async delete(_id: ObjectId) {
     await this.tagged.deleteOne({ _id });
     return { msg: "Tag deleted!" };
-    //BETA: for every content tagged: delete from its contentDoc.tagged 
+    //BETA: for every content tagged: delete from its contentDoc.tagged
   }
   /**
-   * gets content by tag object id 
-   * @param _id Id of tag object 
+   * gets content by tag object id
+   * @param _id Id of tag object
    */
   async getContent(_id: ObjectId) {
     const content = await this.tagged.readOne({ _id });
@@ -48,7 +46,7 @@ export default class TagsConcept<T> {
   }
   /** gets content w that tag name, if exists */
   async getContentByTagName(tagName: string) {
-    const content = await this.tagged.readOne({ tagName });;
+    const content = await this.tagged.readOne({ tagName });
     if (content) {
       return { msg: "Read successful!", taggedContent: content };
     } else {
@@ -63,7 +61,7 @@ export default class TagsConcept<T> {
   }
   /** adds post/board under given tag */
   async addContent(_id: ObjectId, content: ObjectId) {
-    //WILL MODIFY IN BETA FOR SYNCH W contentDoc.tagged 
+    //WILL MODIFY IN BETA FOR SYNCH W contentDoc.tagged
 
     // await this.tagNotInContent(_id, content);
     // await this.contentSameT(content);
@@ -75,12 +73,12 @@ export default class TagsConcept<T> {
   }
   /** */
   async deleteContent(_id: ObjectId, content: ObjectId) {
-    //WILL MODIFY IN BETA FOR SYNCH W contentDoc.tagged 
+    //WILL MODIFY IN BETA FOR SYNCH W contentDoc.tagged
 
     // await this.tagInContent(_id, content);
     // const oldContent = (await this.getContent(_id)).PostBoard?.content;
     // const newContent = oldContent?.filter(post => (post.toString() !== content.toString()));
-    // //filter returns new array so no need for aliasing 
+    // //filter returns new array so no need for aliasing
     // await this.update(_id, { content: newContent });
 
     throw new Error("Not yet implemented!");
@@ -90,7 +88,7 @@ export default class TagsConcept<T> {
     const content = await this.tagged.readOne({ tagName });
     if (content) {
       throw new BadValuesError("Tag already created");
-    } //else: means no content exists --> we are safe to create tag 
+    } //else: means no content exists --> we are safe to create tag
   }
   /**checks tag has already been created */
   private async alreadyCreated(_id: ObjectId) {
@@ -138,5 +136,4 @@ export default class TagsConcept<T> {
       throw new BadValuesError("This tagname is not allowed");
     }
   }
-
 }
