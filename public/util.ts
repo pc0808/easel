@@ -191,6 +191,33 @@ const operations: operation[] = [
     method: "PUT",
     fields: { tagName: "input", board: "input" },
   },
+
+  // FOLLOWING 
+
+  {
+    name: "Get Following List",
+    endpoint: "api/following/:username",
+    method: "GET",
+    fields: { username: "input" }
+  },
+  {
+    name: "Get Followers List",
+    endpoint: "api/followers/:username",
+    method: "GET",
+    fields: { username: "input" }
+  },
+  {
+    name: "Follow User",
+    endpoint: "api/following/:username",
+    method: "POST",
+    fields: { username: "input" }
+  },
+  {
+    name: "Unfollow User",
+    endpoint: "api/followers/:username",
+    method: "POST",
+    fields: { username: "input" }
+  },
 ];
 
 // Do not edit below here.
