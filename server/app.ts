@@ -1,6 +1,7 @@
 import { ObjectId } from "mongodb";
 import BoardConcept from "./concepts/board";
 import ContentConcept from "./concepts/content";
+import FollowingConcept from "./concepts/following";
 import FriendConcept from "./concepts/friend";
 import ProfileConcept from "./concepts/profile";
 import TagsConcept from "./concepts/tags";
@@ -15,4 +16,5 @@ export const Post = new ContentConcept<string>("Posts");
 export const Board = new BoardConcept("Boards");
 export const Friend = new FriendConcept();
 export const PostTags = new TagsConcept<string>("Post Tags");
-export const BoardTags = new TagsConcept<ObjectId[]>("Board Tags"); 
+export const BoardTags = new TagsConcept<ObjectId[]>("Board Tags");
+export const Following = new FollowingConcept(); 

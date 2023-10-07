@@ -1,7 +1,8 @@
 import { ObjectId } from "mongodb";
 import { User } from "./app";
 import { ContentAuthorNotMatchError, ContentDoc } from "./concepts/content";
-import { AlreadyFriendsError, FriendNotFoundError, FriendRequestAlreadyExistsError, FriendRequestDoc, FriendRequestNotFoundError } from "./concepts/friend";
+import { FollowingDoc } from "./concepts/following";
+import { AlreadyFriendsError, FriendNotFoundError, FriendRequestAlreadyExistsError, FriendRequestNotFoundError } from "./concepts/friend";
 import { Router } from "./framework/router";
 
 /**
@@ -19,7 +20,6 @@ export default class Responses {
     const author = await User.getUserById(post.author);
     return { ...post, author: author.username };
   }
-
   /**
    * Convert ContentDoc<Array<ObjectId>> into more readable format for the frontend by converting the author id into a username.
    */
@@ -48,14 +48,14 @@ export default class Responses {
   }
 
   /**
-   * Convert FriendRequestDoc into more readable format for the frontend
-   * by converting the ids into usernames.
+   * converts followingDocs into keeping only 1 attribute
+   * 
+   * @param following An array of following instances taken from app's Following 
+   * @param follower indicates whether we keep followers/user1 (true) or following/user2 (false)
    */
-  static async friendRequests(requests: FriendRequestDoc[]) {
-    const from = requests.map((request) => request.from);
-    const to = requests.map((request) => request.to);
-    const usernames = await User.idsToUsernames(from.concat(to));
-    return requests.map((request, i) => ({ ...request, from: usernames[i], to: usernames[i + requests.length] }));
+  static async following(following: FollowingDoc[], followed: boolean) {
+    const users: ObjectId[] = following.map(user => (followed ? user.user1 : user.user2));
+    return users;
   }
 }
 

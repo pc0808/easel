@@ -2,7 +2,7 @@
 import { Router, getExpressRouter } from "./framework/router";
 
 import { ObjectId } from "mongodb";
-import { Board, BoardTags, Post, PostTags, Profile, User, WebSession } from "./app";
+import { Board, BoardTags, Following, Post, PostTags, Profile, User, WebSession } from "./app";
 import { ContentDoc, ContentOptions } from "./concepts/content";
 import { BadValuesError } from "./concepts/errors";
 import { ProfileDoc } from "./concepts/profile";
@@ -260,18 +260,24 @@ class Routes {
   ////////////////////////////////
   @Router.get("/following/:username")
   async getFollowing(username: string) {
-    throw new Error("Not yet implemented!");
+    const userID = (await User.getUserByUsername(username))._id;
+    const users = await Following.getFollowing(userID);
+    return { msg: "read successful", users: await Responses.following(users, false) };
   }
   @Router.get("/followers/:username")
   async getFollowers(username: string) {
-    throw new Error("Not yet implemented!");
+    const userID = (await User.getUserByUsername(username))._id;
+    const users = await Following.getFollowers(userID);
+    return { msg: "read successful", users: await Responses.following(users, true) }
   }
   @Router.post("/following/:username")
-  async followUser(username: string) {
-    throw new Error("Not yet implemented!");
+  async followUser(session: WebSessionDoc, username: string) {
+    const user1 = WebSession.getUser(session);
+    const user2 = (await User.getUserByUsername(username))._id;
+    return await Following.followUser(user1, user2);
   }
   @Router.post("/followers/:username")
-  async unfollowUser(username: string) {
+  async unfollowUser(session: WebSessionDoc, username: string) {
     throw new Error("Not yet implemented!");
   }
 }
