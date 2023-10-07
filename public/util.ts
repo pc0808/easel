@@ -53,6 +53,19 @@ const operations: operation[] = [
     method: "GET",
     fields: { username: "input" },
   },
+
+  // PROFILE 
+
+  {
+    name: "Get Profile",
+    endpoint: "/api/profiles/:username",
+    method: "GET",
+    fields: { username: "input" },
+  },
+
+  // POSTS 
+
+
   // {
   //   name: "Get Posts (empty for all)",
   //   endpoint: "/api/posts",

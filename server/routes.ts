@@ -22,7 +22,7 @@ class Routes {
 
   @Router.get("/users/:username")
   async getUser(username: string) {
-    return await User.getUserByUsername(username);
+    return await User.getUsers(username);
   }
 
   @Router.post("/users")
@@ -36,13 +36,31 @@ class Routes {
   @Router.patch("/users")
   async updateUser(session: WebSessionDoc, update: Partial<UserDoc>) {
     const user = WebSession.getUser(session);
-    return await User.update(user, update);
+    const old = (await User.getUserById(user)).username;
+
+    const userUpdate = await User.update(user, update); //assures new usrn is okay 
+
+    const profile = (await Profile.getProfileByUsername(old))._id;
+    const profileUpdate = await Profile.update(profile, { username: update.username });
+    return {
+      msg: userUpdate.msg,
+      user: { _id: userUpdate.user?._id, username: userUpdate.user?.username },
+      Profile: profileUpdate.profile,
+    }
+    //the only thing updating user can do is this
+    // TO DO: UPDATE BOARDS AND POSTS AS WELL!!
   }
 
   @Router.delete("/users")
   async deleteUser(session: WebSessionDoc) {
     const user = WebSession.getUser(session);
     WebSession.end(session);
+
+    const username = (await User.getUserById(user)).username;
+    const profile = (await Profile.getProfileByUsername(username))._id;
+    await Profile.delete(profile);
+
+    // TO DO: DELETE POSTS AND BOARD INSTANCES AS WELL!!!
     return await User.delete(user);
   }
 
@@ -57,6 +75,14 @@ class Routes {
   async logOut(session: WebSessionDoc) {
     WebSession.end(session);
     return { msg: "Logged out!" };
+  }
+
+  ///////////////////////////////////
+  // PROFILES CONCEPT DOWN BELOW ////
+  ///////////////////////////////////
+  @Router.get("/profiles/:username")
+  async getProfile(username: string) {
+    return await Profile.getProfiles(username);
   }
 
   ////////////////////////////////

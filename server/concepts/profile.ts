@@ -1,5 +1,6 @@
 import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
+import { NotFoundError } from "./errors";
 import { UserDoc } from "./user";
 
 export interface ProfileDoc extends BaseDoc {
@@ -18,14 +19,26 @@ export default class ProfileConcept {
         return { msg: "Content successfully created!", profile: await this.profiles.readOne({ _id }) };
     }
     async getProfile(_id: ObjectId) {
-        throw new Error("Not yet implemented!");
+        const prof = await this.profiles.readOne({ _id });
+        if (prof === null) {
+            throw new NotFoundError(`User not found!`);
+        }
+        return prof;
     }
     async getProfileByUsername(username: string) {
-        throw new Error("Not yet implemented!");
+        const prof = await this.profiles.readOne({ username });
+        if (prof === null) {
+            throw new NotFoundError(`Profile not found!`);
+        }
+        return prof;
+    }
+    async getProfiles(username?: string) {
+        // If username is undefined, return all users by applying empty filter
+        const filter = username ? { username } : {};
+        return await this.profiles.readMany(filter);
     }
     async delete(_id: ObjectId) {
-        throw new Error("Not yet implemented!");
-        //BETA: delete posts and boards as well 
+        await this.profiles.deleteOne({ _id });
     }
     async changeUsername(newName: string) {
         throw new Error("Not yet implemented!");
@@ -46,7 +59,8 @@ export default class ProfileConcept {
     }
     //for updating boards, posts, following AND followed:
     async update(_id: ObjectId, update: Partial<UserDoc>) {
-        throw new Error("Not yet implemented!");
+        await this.profiles.updateOne({ _id }, update);
+        return { msg: "Successfully done!", profile: await this.profiles.readOne(_id) };
     }
     async getFollowing(_id: ObjectId) {
         throw new Error("Not yet implemented!");
