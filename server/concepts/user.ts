@@ -1,8 +1,6 @@
 import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
 import { BadValuesError, NotAllowedError, NotFoundError } from "./errors";
-// import { ProfileDoc } from "./profile";
-// import { Profile } from "../app";
 
 export interface UserDoc extends BaseDoc {
   username: string;
@@ -16,10 +14,10 @@ export default class UserConcept {
   async create(username: string, password: string) {
     await this.canCreate(username, password);
     const _id = await this.users.createOne({ username, password });
-    return { msg: "User created successfully!", user: await this.users.readOne({ _id }) };
-
-    //BETA:
-    // create profile for new username in Profile instance 
+    return {
+      msg: "User created successfully!",
+      user: await this.users.readOne({ _id }),
+    };
   }
 
   private sanitizeUser(user: UserDoc) {

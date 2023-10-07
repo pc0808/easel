@@ -6,18 +6,16 @@ export interface ProfileDoc extends BaseDoc {
     username: string;
     avatar: string;
     biography: string;
-    posts: ObjectId[];
-    boards: ObjectId[];
-    following: ObjectId[];
-    followedBy: ObjectId[];
+    // following: ObjectId[];
+    // followedBy: ObjectId[];
 }
 
 export default class ProfileConcept {
-    public readonly profiles = new DocCollection<UserDoc>("Profiles");
+    public readonly profiles = new DocCollection<ProfileDoc>("Profiles");
 
     async create(username: string) {
-        throw new Error("Not yet implemented!");
-        //BETA: CREATE W EMPTY FOR EVERYTHING EXCEPT USERNAME!
+        const _id = await this.profiles.createOne({ username: username, avatar: "", biography: "" });
+        return { msg: "Content successfully created!", profile: await this.profiles.readOne({ _id }) };
     }
     async getProfile(_id: ObjectId) {
         throw new Error("Not yet implemented!");
