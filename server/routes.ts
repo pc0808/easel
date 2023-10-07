@@ -5,6 +5,7 @@ import { ObjectId } from "mongodb";
 import { Board, BoardTags, Post, PostTags, Profile, User, WebSession } from "./app";
 import { ContentDoc, ContentOptions } from "./concepts/content";
 import { BadValuesError } from "./concepts/errors";
+import { ProfileDoc } from "./concepts/profile";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
 import Responses from "./responses";
@@ -41,11 +42,7 @@ class Routes {
   @Router.patch("/users")
   async updateUser(session: WebSessionDoc, update: Partial<UserDoc>) {
     const user = WebSession.getUser(session);
-    const userUpdate = await User.update(user, update); //assures new usrn is okay 
-    return {
-      msg: userUpdate.msg,
-      user: { _id: userUpdate.user?._id, username: userUpdate.user?.username },
-    }
+    return await User.update(user, update); //assures new usrn is okay 
   }
 
   @Router.delete("/users")
@@ -80,6 +77,13 @@ class Routes {
     //userID: 
     const _id = (await User.getUserByUsername(username))._id;
     return await Profile.getProfileByUser(_id);
+  }
+
+  @Router.patch("/profiles")
+  async updateProfile(session: WebSessionDoc, update: Partial<ProfileDoc>) {
+    const user = WebSession.getUser(session);
+    const profile = (await Profile.getProfileByUser(user))._id;
+    return await Profile.update(profile, update); //assures new usrn is okay 
   }
 
   ////////////////////////////////

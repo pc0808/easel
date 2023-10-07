@@ -66,7 +66,8 @@ export default class UserConcept {
   }
 
   async update(_id: ObjectId, update: Partial<UserDoc>) {
-    if (update.username !== undefined) {
+    const user = await this.getUserById(_id);
+    if (update.username && update.username !== user.username) {
       await this.isUsernameUnique(update.username);
     }
     await this.users.updateOne({ _id }, update);

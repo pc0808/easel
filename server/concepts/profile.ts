@@ -7,8 +7,6 @@ export interface ProfileDoc extends BaseDoc {
     user: ObjectId;
     avatar: string;
     biography: string;
-    // following: ObjectId[];
-    // followedBy: ObjectId[];
 }
 
 export default class ProfileConcept {
@@ -39,40 +37,14 @@ export default class ProfileConcept {
     async delete(_id: ObjectId) {
         await this.profiles.deleteOne({ _id: _id });
     }
-    async changeUsername(newName: string) {
-        throw new Error("Not yet implemented!");
-        //BETA: UPDATE DATA IN BOARDS/POSTS AS WELL 
-    }
-    //AVATAR WILL MOST LIKELY BE OPTIONAL OR HAVE DEFAULT VALUE 
-    async changeAvatar(newFile: string) {
-        throw new Error("Not yet implemented!");
-    }
-    async changeBiography(newBio: string) {
-        throw new Error("Not yet implemented!");
-    }
-    async getPosts(_id: ObjectId) {
-        throw new Error("Not yet implemented!");
-    }
-    async getBoards(_id: ObjectId) {
-        throw new Error("Not yet implemented!");
-    }
+
     //for updating boards, posts, following AND followed:
     async update(_id: ObjectId, update: Partial<UserDoc>) {
         await this.profiles.updateOne({ _id }, update);
         return { msg: "Successfully done!", profile: await this.profiles.readOne(_id) };
     }
-    async getFollowing(_id: ObjectId) {
-        throw new Error("Not yet implemented!");
-    }
-    async getFollowed(_id: ObjectId) {
-        throw new Error("Not yet implemented!");
-    }
-    async followUser(_id: ObjectId, user: ObjectId) {
-        throw new Error("Not yet implemented!");
-    }
-    async unfollowUser(_id: ObjectId, user: ObjectId) {
-        throw new Error("Not yet implemented!");
-    }
+
+    // TO DO ON FOLLOWING DOCS 
     async getFollowingPosts(_id: ObjectId) {
         throw new Error("Not yet implemented!");
     }

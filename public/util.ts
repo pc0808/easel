@@ -62,7 +62,12 @@ const operations: operation[] = [
     method: "GET",
     fields: { username: "input" },
   },
-
+  {
+    name: "Update Profile",
+    endpoint: "/api/profiles",
+    method: "PATCH",
+    fields: { update: { avatar: "input", biography: "input" } },
+  },
   // POSTS 
 
 
