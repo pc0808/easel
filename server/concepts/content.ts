@@ -66,11 +66,6 @@ export default class ContentConcept<T>{
     await this.contents.updateOne({ _id }, update);
     return { msg: "Content successfully updated!" };
   }
-  async contentExists(board: ContentDoc<T> | undefined) {
-    if (!board) {
-      throw new NotAllowedError('Board does not exist ');
-    }
-  }
   //BETA:
   async getUserProfile(_id: ObjectId) {
     throw new Error("Not yet implemented!");

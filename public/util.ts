@@ -117,18 +117,18 @@ const operations: operation[] = [
     method: "GET",
     fields: { id: "input" },
   },
-  // {
-  //   name: "Add Post to Board",
-  //   endpoint: "api/boards/:board&:post",
-  //   method: "PATCH",
-  //   fields: { board: "input", post: "input" },
-  // },
-  // {
-  //   name: "Delete Post from Board",
-  //   endpoint: "api/boards/:board&:post",
-  //   method: "PUT",
-  //   fields: { board: "input", post: "input" },
-  // },
+  {
+    name: "Add Post to Board",
+    endpoint: "api/boards/:board&:post",
+    method: "PATCH",
+    fields: { board: "input", post: "input" },
+  },
+  {
+    name: "Delete Post from Board",
+    endpoint: "api/boards/:board&:post",
+    method: "PUT",
+    fields: { board: "input", post: "input" },
+  },
   {
     name: "Delete Board",
     endpoint: "/api/boards/:id",

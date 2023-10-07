@@ -201,13 +201,14 @@ class Routes {
     return { msg: created.msg, board: await Responses.board(created.content) };
   }
 
-  // @Router.patch("/boards/:_board&:_post")
-  // async addPostToBoard(session: WebSessionDoc, _board: ObjectId, _post: ObjectId) {
-  //   const user = WebSession.getUser(session);
-  //   await Board.isAuthor(user, _board);
-  //   //console.log("Before update id:", _id, "\n post:", _postid, "\n");
-  //   return await Board.addPostToBoard(_board, _post);
-  // }
+  @Router.patch("/boards/:_board&:_post")
+  async addPostToBoard(session: WebSessionDoc, _board: ObjectId, _post: ObjectId) {
+    const user = WebSession.getUser(session);
+    await Board.isAuthor(user, _board);
+    await Post.getContentByID(_post); //will check that this post actually exists 
+    //console.log("Before update id:", _id, "\n post:", _postid, "\n");
+    return await Board.addPostToBoard(_board, _post);
+  }
 
   @Router.delete("/boards/:_id")
   async deleteBoard(session: WebSessionDoc, _id: ObjectId) {
@@ -216,43 +217,31 @@ class Routes {
     return Board.delete(_id);
   }
 
-  // @Router.put("/boards/:_board&:_post")
-  // async deletePostFromBoard(session: WebSessionDoc, _board: ObjectId, _post: ObjectId) {
-  //   const user = WebSession.getUser(session);
-  //   await Board.isAuthor(user, _board);
-  //   return await Board.deletePostFromBoard(_board, _post);
+  @Router.put("/boards/:_board&:_post")
+  async deletePostFromBoard(session: WebSessionDoc, _board: ObjectId, _post: ObjectId) {
+    const user = WebSession.getUser(session);
+    await Board.isAuthor(user, _board);
+    await Post.getContentByID(_post); //will check that this post actually exists 
+    return await Board.deletePostFromBoard(_board, _post);
+  }
+
+  ////////////////////////////////
+  // TAGS CONCEPT DOWN BELOW /////
+  ////////////////////////////////
+  // @Router.get("/posts/tags/:tagName")
+  // async getTaggedPosts(session: WebSessionDoc, tagName: string) {
+  //   WebSession.isLoggedIn(session);
+  //   const posts = await PostTags.getContentByTagName(tagName);
+  //   return { msg: posts.msg, posts: posts.taggedContent.content };
   // }
 
-  //   ////////////////////////////////
-  //   // TAGS CONCEPT DOWN BELOW /////
-  //   ////////////////////////////////
-  //   @Router.get("/posts/tags/:tagName")
-  //   async getTaggedPosts(session: WebSessionDoc, tagName: string) {
-  //     WebSession.isLoggedIn(session);
-  //     const posts = await PostTags.getContentByTagName(tagName);
-  //     return { msg: posts.msg, posts: posts.taggedContent.content };
-  //   }
+  // @Router.get("/boards/tags/:tagName")
+  // async getTaggedBoards(session: WebSessionDoc, tagName: string) {
+  //   WebSession.isLoggedIn(session);
+  //   const boards = await BoardTags.getContentByTagName(tagName);
+  //   return { msg: boards.msg, boards: boards.taggedContent.content };
+  // }
 
-  //   @Router.get("/boards/tags/:tagName")
-  //   async getTaggedBoards(session: WebSessionDoc, tagName: string) {
-  //     WebSession.isLoggedIn(session);
-  //     const boards = await BoardTags.getContentByTagName(tagName);
-  //     return { msg: boards.msg, boards: boards.taggedContent.content };
-  //   }
-
-  //   @Router.post("/posts/tags/:tagName")
-  //   async createPostTag(session: WebSessionDoc, tagName: string) {
-  //     WebSession.isLoggedIn(session);
-  //     const created = await PostTags.create(tagName);
-  //     return { msg: created.msg, post: created.tag };
-  //   }
-
-  //   @Router.post("/boards/tags/:tagName")
-  //   async createBoardTag(session: WebSessionDoc, tagName: string) {
-  //     WebSession.isLoggedIn(session);
-  //     const created = await BoardTags.create(tagName);
-  //     return { msg: created.msg, post: created.tag };
-  //   }
 
   //   @Router.patch("/posts/tags/:tagName&:_post")
   //   async addTagToPost(session: WebSessionDoc, _post: ObjectId, tagName: string) {
