@@ -99,24 +99,24 @@ const operations: operation[] = [
 
   // BOARDS 
 
-  // {
-  //   name: "Create Board",
-  //   endpoint: "/api/boards",
-  //   method: "POST",
-  //   fields: { caption: "input" },
-  // },
-  // {
-  //   name: "Get Boards",
-  //   endpoint: "/api/boards",
-  //   method: "GET",
-  //   fields: { author: "input" },
-  // },
-  // {
-  //   name: "Get Board by ID",
-  //   endpoint: "/api/boards/:id",
-  //   method: "GET",
-  //   fields: { id: "input" },
-  // },
+  {
+    name: "Create Board",
+    endpoint: "/api/boards",
+    method: "POST",
+    fields: { caption: "input" },
+  },
+  {
+    name: "Get Boards",
+    endpoint: "/api/boards",
+    method: "GET",
+    fields: { author: "input" },
+  },
+  {
+    name: "Get Board by ID",
+    endpoint: "/api/boards/:id",
+    method: "GET",
+    fields: { id: "input" },
+  },
   // {
   //   name: "Add Post to Board",
   //   endpoint: "api/boards/:board&:post",
@@ -129,12 +129,12 @@ const operations: operation[] = [
   //   method: "PUT",
   //   fields: { board: "input", post: "input" },
   // },
-  // {
-  //   name: "Delete Board",
-  //   endpoint: "/api/boards/:id",
-  //   method: "DELETE",
-  //   fields: { id: "input" },
-  // },
+  {
+    name: "Delete Board",
+    endpoint: "/api/boards/:id",
+    method: "DELETE",
+    fields: { id: "input" },
+  },
   // {
   //   name: "Get Posts by Tag",
   //   endpoint: "/api/posts/tags/:tagName",

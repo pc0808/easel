@@ -2,7 +2,7 @@
 import { Router, getExpressRouter } from "./framework/router";
 
 import { ObjectId } from "mongodb";
-import { Post, Profile, User, WebSession } from "./app";
+import { Board, Post, Profile, User, WebSession } from "./app";
 import { ContentDoc, ContentOptions } from "./concepts/content";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
@@ -54,6 +54,7 @@ class Routes {
 
     const userID = (await User.getUserById(user))._id;
     await Profile.delete(userID);
+    await Post.deleteMany(userID);
     return await User.delete(user);
   }
 
@@ -172,55 +173,55 @@ class Routes {
   //     return await Friend.rejectRequest(fromId, user);
   //   }
 
-  //   /////////////////////////////////
-  //   // BOARDS CONCEPT DOWN BELOW ////
-  //   /////////////////////////////////
-  //   @Router.get("/boards")
-  //   async getBoards(author?: string) {
-  //     let boards;
-  //     if (author) {
-  //       const id = (await User.getUserByUsername(author))._id;
-  //       boards = await Board.getByAuthor(id);
-  //     } else {
-  //       boards = await Board.getContents({});
-  //     }
-  //     return Responses.boards(boards);
-  //   }
+  /////////////////////////////////
+  // BOARDS CONCEPT DOWN BELOW ////
+  /////////////////////////////////
+  @Router.get("/boards")
+  async getBoards(author?: string) {
+    let boards;
+    if (author) {
+      const id = (await User.getUserByUsername(author))._id;
+      boards = await Board.getByAuthor(id);
+    } else {
+      boards = await Board.getContents({});
+    }
+    return Responses.boards(boards);
+  }
 
-  //   @Router.get("/boards/:_id")
-  //   async getBoardByID(_id: ObjectId) {
-  //     const board = await Board.getContentByID(_id);
-  //     return { msg: board.msg, board: board.PostBoard };
-  //   }
+  @Router.get("/boards/:_id")
+  async getBoardByID(_id: ObjectId) {
+    const board = await Board.getContentByID(_id);
+    return { msg: board.msg, board: board.content };
+  }
 
-  //   @Router.post("/boards")
-  //   async createBoard(session: WebSessionDoc, caption: string) {
-  //     const user = WebSession.getUser(session);
-  //     const created = await Board.create(user, caption, []);
-  //     return { msg: created.msg, board: await Responses.board(created.content) };
-  //   }
+  @Router.post("/boards")
+  async createBoard(session: WebSessionDoc, caption: string) {
+    const user = WebSession.getUser(session);
+    const created = await Board.create(user, caption, []);
+    return { msg: created.msg, board: await Responses.board(created.content) };
+  }
 
-  //   @Router.patch("/boards/:_board&:_post")
-  //   async addPostToBoard(session: WebSessionDoc, _board: ObjectId, _post: ObjectId) {
-  //     const user = WebSession.getUser(session);
-  //     await Board.isAuthor(user, _board);
-  //     //console.log("Before update id:", _id, "\n post:", _postid, "\n");
-  //     return await Board.addPostToBoard(_board, _post);
-  //   }
+  // @Router.patch("/boards/:_board&:_post")
+  // async addPostToBoard(session: WebSessionDoc, _board: ObjectId, _post: ObjectId) {
+  //   const user = WebSession.getUser(session);
+  //   await Board.isAuthor(user, _board);
+  //   //console.log("Before update id:", _id, "\n post:", _postid, "\n");
+  //   return await Board.addPostToBoard(_board, _post);
+  // }
 
-  //   @Router.delete("/boards/:_id")
-  //   async deleteBoard(session: WebSessionDoc, _id: ObjectId) {
-  //     const user = WebSession.getUser(session);
-  //     await Board.isAuthor(user, _id);
-  //     return Board.delete(_id);
-  //   }
+  @Router.delete("/boards/:_id")
+  async deleteBoard(session: WebSessionDoc, _id: ObjectId) {
+    const user = WebSession.getUser(session);
+    await Board.isAuthor(user, _id);
+    return Board.delete(_id);
+  }
 
-  //   @Router.put("/boards/:_board&:_post")
-  //   async deletePostFromBoard(session: WebSessionDoc, _board: ObjectId, _post: ObjectId) {
-  //     const user = WebSession.getUser(session);
-  //     await Board.isAuthor(user, _board);
-  //     return await Board.deletePostFromBoard(_board, _post);
-  //   }
+  // @Router.put("/boards/:_board&:_post")
+  // async deletePostFromBoard(session: WebSessionDoc, _board: ObjectId, _post: ObjectId) {
+  //   const user = WebSession.getUser(session);
+  //   await Board.isAuthor(user, _board);
+  //   return await Board.deletePostFromBoard(_board, _post);
+  // }
 
   //   ////////////////////////////////
   //   // TAGS CONCEPT DOWN BELOW /////
