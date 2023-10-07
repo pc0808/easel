@@ -57,10 +57,16 @@ const operations: operation[] = [
   // PROFILE 
 
   {
-    name: "Get Profile",
+    name: "Get Profile by Username",
     endpoint: "/api/profiles/:username",
     method: "GET",
     fields: { username: "input" },
+  },
+  {
+    name: "Get All Profiles",
+    endpoint: "/api/hello",
+    method: "GET",
+    fields: {},
   },
 
   // POSTS 

@@ -29,26 +29,19 @@ class Routes {
   async createUser(session: WebSessionDoc, username: string, password: string) {
     WebSession.isLoggedOut(session);
     const user = await User.create(username, password);
-    const profile = await Profile.create(username);
+    const userID = (await User.getUserByUsername(username))._id;
+    const profile = await Profile.create(userID);
     return { msg: "Successfully created!", user: user.user, profile: profile.profile };
   }
 
   @Router.patch("/users")
   async updateUser(session: WebSessionDoc, update: Partial<UserDoc>) {
     const user = WebSession.getUser(session);
-    const old = (await User.getUserById(user)).username;
-
     const userUpdate = await User.update(user, update); //assures new usrn is okay 
-
-    const profile = (await Profile.getProfileByUsername(old))._id;
-    const profileUpdate = await Profile.update(profile, { username: update.username });
     return {
       msg: userUpdate.msg,
       user: { _id: userUpdate.user?._id, username: userUpdate.user?.username },
-      Profile: profileUpdate.profile,
     }
-    //the only thing updating user can do is this
-    // TO DO: UPDATE BOARDS AND POSTS AS WELL!!
   }
 
   @Router.delete("/users")
@@ -56,11 +49,8 @@ class Routes {
     const user = WebSession.getUser(session);
     WebSession.end(session);
 
-    const username = (await User.getUserById(user)).username;
-    const profile = (await Profile.getProfileByUsername(username))._id;
-    await Profile.delete(profile);
-
-    // TO DO: DELETE POSTS AND BOARD INSTANCES AS WELL!!!
+    const userID = (await User.getUserById(user))._id;
+    await Profile.delete(userID);
     return await User.delete(user);
   }
 
@@ -81,44 +71,50 @@ class Routes {
   // PROFILES CONCEPT DOWN BELOW ////
   ///////////////////////////////////
   @Router.get("/profiles/:username")
-  async getProfile(username: string) {
-    return await Profile.getProfiles(username);
+  async getProfileByUsername(username: string) {
+    //userID: 
+    console.log("Is this working");
+    console.log(await User.getUserByUsername(username));
+    const _id = (await User.getUserByUsername(username))._id;
+    console.log(username)
+    console.log("userid:", _id);
+    return await Profile.getProfileByUser(_id);
   }
 
   ////////////////////////////////
   // POSTS CONCEPT DOWN BELOW ////
   ////////////////////////////////
-  //   @Router.get("/posts")
-  //   async getPosts(author?: string) {
-  //     let posts;
-  //     if (author) {
-  //       const id = (await User.getUserByUsername(author))._id;
-  //       posts = await Post.getByAuthor(id);
-  //     } else {
-  //       posts = await Post.getContents({});
-  //     }
-  //     return Responses.posts(posts);
+  // @Router.get("/posts")
+  // async getPosts(author?: string) {
+  //   let posts;
+  //   if (author) {
+  //     const id = (await User.getUserByUsername(author))._id;
+  //     posts = await Post.getByAuthor(id);
+  //   } else {
+  //     posts = await Post.getContents({});
   //   }
+  //   return Responses.posts(posts);
+  // }
 
-  //   @Router.get("/posts/:_id")
-  //   async getPostByID(_id: ObjectId) {
-  //     const post = await Post.getContentByID(_id);
-  //     return { msg: post.msg, post: post.PostBoard };
-  //   }
+  // @Router.get("/posts/:_id")
+  // async getPostByID(_id: ObjectId) {
+  //   const post = await Post.getContentByID(_id);
+  //   return { msg: post.msg, post: post };
+  // }
 
-  //   @Router.post("/posts")
-  //   async createPost(session: WebSessionDoc, caption: string, content: string, options?: ContentOptions) {
-  //     const user = WebSession.getUser(session);
-  //     const created = await Post.create(user, caption, content, options);
-  //     return { msg: created.msg, post: await Responses.post(created.content) };
-  //   }
+  // @Router.post("/posts")
+  // async createPost(session: WebSessionDoc, caption: string, content: string, options?: ContentOptions) {
+  //   const user = WebSession.getUser(session);
+  //   const created = await Post.create(user, caption, content, options);
+  //   return { msg: created.msg, post: await Responses.post(created.content) };
+  // }
 
-  //   @Router.patch("/posts/:_id")
-  //   async updatePost(session: WebSessionDoc, _id: ObjectId, update: Partial<ContentDoc<string>>) {
-  //     const user = WebSession.getUser(session);
-  //     await Post.isAuthor(user, _id);
-  //     return await Post.update(_id, update);
-  //   }
+  // @Router.patch("/posts/:_id")
+  // async updatePost(session: WebSessionDoc, _id: ObjectId, update: Partial<ContentDoc<string>>) {
+  //   const user = WebSession.getUser(session);
+  //   await Post.isAuthor(user, _id);
+  //   return await Post.update(_id, update);
+  // }
 
   //   @Router.delete("/posts/:_id")
   //   async deletePost(session: WebSessionDoc, _id: ObjectId) {

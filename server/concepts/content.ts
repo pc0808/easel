@@ -24,7 +24,6 @@ export default class ContentConcept<T>{
 
   async create(author: ObjectId, caption: string, content: T, tagged = [], options?: ContentOptions) {
     const _id = await this.contents.createOne({ author, caption, content, tagged, options });
-    //BETA: UPDATE PROFILE AS WELL 
     return { msg: "Content successfully created!", content: await this.contents.readOne({ _id }) };
   }
 
@@ -41,21 +40,18 @@ export default class ContentConcept<T>{
 
   async getContentByID(_id: ObjectId) {
     const content = await this.contents.readOne({ _id });
-    if (content) {
-      return { msg: "Read successful!", PostBoard: content };
-    } else {
-      return { msg: "Read failure" };
-    }
+    if (!content) throw new NotFoundError("Content w this ID does not exist");
+    else return { msg: "read successful", content: content }
   }
+
   async delete(_id: ObjectId) {
     await this.contents.deleteOne({ _id });
     return { msg: "Content deleted successfully!" };
-
-    //IMPLEMENT IN BETA:
-    // for(tag in _id data from db) 
-    //    get tag.data from db
-    //    tag.content.remove(_id)
   }
+  async deleteMany(username: string) {
+    throw new Error("Not yet implemented");
+  }
+
   async isAuthor(user: ObjectId, _id: ObjectId) {
     const content = await this.contents.readOne({ _id });
     if (!content) {

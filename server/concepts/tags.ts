@@ -123,12 +123,12 @@ export default class TagsConcept<T> {
     }
   }
   private async contentSameT(content: ObjectId) {
-    const post = await this.allContent.getContentByID(content);
-    this.allContent.contentExists((await this.allContent.getContentByID(content)).PostBoard);
+    // const post = await this.allContent.getContentByID(content);
+    // this.allContent.contentExists(await this.allContent.getContentByID(content));
 
-    if (!post.PostBoard) {
-      throw new NotFoundError("Can only add tags to elts of same type T");
-    }
+    // if (!post) {
+    //   throw new NotFoundError("Can only add tags to elts of same type T");
+    // }
   }
 
   private tagIsAllowed(tagName: string) {
