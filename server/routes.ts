@@ -2,8 +2,9 @@
 import { Router, getExpressRouter } from "./framework/router";
 
 import { ObjectId } from "mongodb";
-import { Board, Post, Profile, User, WebSession } from "./app";
+import { Board, BoardTags, Post, PostTags, Profile, User, WebSession } from "./app";
 import { ContentDoc, ContentOptions } from "./concepts/content";
+import { BadValuesError } from "./concepts/errors";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
 import Responses from "./responses";
@@ -239,39 +240,42 @@ class Routes {
   ////////////////////////////////
   // TAGS CONCEPT DOWN BELOW /////
   ////////////////////////////////
-  //   @Router.get("/posts/tags/:tagName")
-  //   async getTaggedPosts(session: WebSessionDoc, tagName: string) {
-  //     WebSession.isLoggedIn(session);
-  //     return await PostTags.getContentByTagName(tagName);
-  //   }
+  @Router.get("/tags/posts/:tagName")
+  async getTaggedPosts(tagName: string) {
+    return await PostTags.getContentByTagName(tagName);
+  }
 
-  //   @Router.get("/boards/tags/:tagName")
-  //   async getTaggedBoards(session: WebSessionDoc, tagName: string) {
-  //     WebSession.isLoggedIn(session);
-  //     return await BoardTags.getContentByTagName(tagName);
-  //   }
+  @Router.get("/tags/boards/:tagName")
+  async getTaggedBoards(tagName: string) {
+    return await BoardTags.getContentByTagName(tagName);
+  }
 
-  //   @Router.patch("/posts/tags/:tagName&:_post")
-  //   async addTagToPost(session: WebSessionDoc, _post: ObjectId, tagName: string) {
-  //     const user = WebSession.getUser(session);
-  //     await Post.isAuthor(user, _post);
-  //     const tag = (await PostTags.getContentByTagName(tagName)).taggedContent;
-  //     if (!tag) throw new BadValuesError("Tag search gone bad");
+  @Router.patch("/tags/posts/:tagName&:_post")
+  async addTagToPost(session: WebSessionDoc, _post: ObjectId, tagName: string) {
+    const user = WebSession.getUser(session);
+    await Post.isAuthor(user, _post);
+    const tag = (await PostTags.getContentByTagName(tagName)).taggedContent;
+    if (!tag) throw new BadValuesError("Tag search gone bad");
 
-  //     // console.log("Adding tag does work!! but mongoDB sends a strange error");
-  //     await PostTags.addContent(tag._id, _post);
-  //     const postUpdate = await Post.addTag(tagName, _post);
-  //     return {msg: "Successful update", post: postUpdate}
-  //   }
+    // console.log("Adding tag does work!! but mongoDB sends a strange error");
+    await PostTags.addContent(tag._id, _post);
+    await Post.addTag(tagName, _post);
+    return { msg: "Successful update" }
+  }
 
-  //   @Router.patch("/boards/tags/:tagName&:_board")
-  //   async addTagToBoard(session: WebSessionDoc, _board: ObjectId, tagName: string) {
-  //     const user = WebSession.getUser(session);
-  //     await Board.isAuthor(user, _board);
-  //     const tag = (await BoardTags.getContentByTagName(tagName)).taggedContent;
-  //     console.log("Adding tag does work!! but mongoDB sends a strange error");
-  //     return await BoardTags.addContent(tag._id, _board);
-  //   }
+  @Router.patch("/boards/tags/:tagName&:_board")
+  async addTagToBoard(session: WebSessionDoc, _board: ObjectId, tagName: string) {
+    const user = WebSession.getUser(session);
+    await Board.isAuthor(user, _board);
+    const tag = (await BoardTags.getContentByTagName(tagName)).taggedContent;
+
+    if (!tag) throw new BadValuesError("Tag search gone bad");
+
+    // console.log("Adding tag does work!! but mongoDB sends a strange error");
+    await BoardTags.addContent(tag._id, _board);
+    await Board.addTag(tagName, _board);
+    return { msg: "Successful update" }
+  }
 
   //   @Router.put("/posts/tags/:tagName&:_post")
   //   async deleteTagFromPost(session: WebSessionDoc, _post: ObjectId, tagName: string) {

@@ -147,30 +147,33 @@ const operations: operation[] = [
     method: "DELETE",
     fields: { id: "input" },
   },
-  // {
-  //   name: "Get Posts by Tag",
-  //   endpoint: "/api/posts/tags/:tagName",
-  //   method: "GET",
-  //   fields: { tagName: "input" },
-  // },
-  // {
-  //   name: "Get Boards by Tag",
-  //   endpoint: "/api/boards/tags/:tagName",
-  //   method: "GET",
-  //   fields: { tagName: "input" },
-  // },
-  // {
-  //   name: "Add Tag to Post",
-  //   endpoint: "api/posts/tags/:tagName&:post",
-  //   method: "PATCH",
-  //   fields: { tagName: "input", post: "input" },
-  // },
-  // {
-  //   name: "Add Tag to Board",
-  //   endpoint: "api/boards/tags/:tagName&:board",
-  //   method: "PATCH",
-  //   fields: { tagName: "input", board: "input" },
-  // },
+
+  // TAGS
+
+  {
+    name: "Get All Posts With Tag",
+    endpoint: "/api/tags/posts/:tagName",
+    method: "GET",
+    fields: { tagName: "input" },
+  },
+  {
+    name: "Get Boards by Tag",
+    endpoint: "/api/tags/boards/:tagName",
+    method: "GET",
+    fields: { tagName: "input" },
+  },
+  {
+    name: "Add Tag to Post",
+    endpoint: "api/tags/posts/:tagName&:id",
+    method: "PATCH",
+    fields: { tagName: "input", id: "input" },
+  },
+  {
+    name: "Add Tag to Board",
+    endpoint: "api/tags/boards/:tagName&:id",
+    method: "PATCH",
+    fields: { tagName: "input", id: "input" },
+  },
   // {
   //   name: "Delete Tag from Post",
   //   endpoint: "api/posts/tags/:tagName&:post",

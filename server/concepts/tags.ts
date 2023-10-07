@@ -20,7 +20,10 @@ export default class TagsConcept<T> {
   async create(tagName: string) {
     await this.canCreate(tagName);
     this.tagIsAllowed(tagName);
-    const _id = await this.tagged.createOne({ tagName: tagName, content: [] });
+    const _id = await this.tagged.createOne({
+      tagName: tagName.toLowerCase(),
+      content: []
+    });
     return {
       msg: "Tag created successfully!",
       taggedContent: await this.tagged.readOne({ _id })
@@ -46,7 +49,7 @@ export default class TagsConcept<T> {
   }
   /** gets content w that tag name, if exists */
   async getContentByTagName(tagName: string) {
-    const content = await this.tagged.readOne({ tagName });
+    const content = await this.tagged.readOne({ tagName: tagName.toLowerCase() });
     if (content) {
       return { msg: "Read successful!", taggedContent: content };
     } else {
@@ -70,7 +73,6 @@ export default class TagsConcept<T> {
   }
   /** */
   async deleteContent(_id: ObjectId, content: ObjectId) {
-    //WILL MODIFY IN BETA FOR SYNCH W contentDoc.tagged
 
     // await this.tagInContent(_id, content);
     // const oldContent = (await this.getContent(_id)).PostBoard?.content;
@@ -82,19 +84,16 @@ export default class TagsConcept<T> {
   }
   /** checks tag isn't already created */
   private async canCreate(tagName: string) {
-    const content = await this.tagged.readOne({ tagName });
+    const content = await this.tagged.readOne({ tagName: tagName.toLowerCase() });
     if (content) {
       throw new BadValuesError("Tag already created");
     } //else: means no content exists --> we are safe to create tag
   }
   /** Checks given post/board not already in tags */
   private async tagNotInContent(_id: ObjectId, content: ObjectId) {
-    // await this.alreadyCreated(_id);
-    // const result = (await this.getContent(_id)).PostBoard.content;
-    // const diff = result?.filter(post => (post.toString() === content.toString())).length;
-    // if (diff !== 0) throw new BadValuesError("Post already tagged like this");
-
-    throw new Error("Not yet implemented!");
+    const result = (await this.getContent(_id)).taggedContent.content;
+    const diff = result?.filter(post => (post.toString() === content.toString())).length;
+    if (diff !== 0) throw new BadValuesError("Post already tagged like this");
   }
   /** Checks given post/board is already in tags */
   private async tagInContent(_id: ObjectId, content: ObjectId) {
@@ -116,7 +115,7 @@ export default class TagsConcept<T> {
   }
 
   private tagIsAllowed(tagName: string) {
-    if (NOT_ALLOWED_TAGS.has(tagName)) {
+    if (NOT_ALLOWED_TAGS.has(tagName.toLowerCase())) {
       throw new BadValuesError("This tagname is not allowed");
     }
   }
