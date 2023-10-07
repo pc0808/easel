@@ -259,11 +259,12 @@ class Routes {
 
     // console.log("Adding tag does work!! but mongoDB sends a strange error");
     await PostTags.addContent(tag._id, _post);
+    console.log("bug after adding to TAG instance");
     await Post.addTag(tagName, _post);
     return { msg: "Successful update" }
   }
 
-  @Router.patch("/boards/tags/:tagName&:_board")
+  @Router.patch("/tags/boards/:tagName&:_board")
   async addTagToBoard(session: WebSessionDoc, _board: ObjectId, tagName: string) {
     const user = WebSession.getUser(session);
     await Board.isAuthor(user, _board);
@@ -271,29 +272,34 @@ class Routes {
 
     if (!tag) throw new BadValuesError("Tag search gone bad");
 
-    // console.log("Adding tag does work!! but mongoDB sends a strange error");
     await BoardTags.addContent(tag._id, _board);
     await Board.addTag(tagName, _board);
     return { msg: "Successful update" }
   }
 
-  //   @Router.put("/posts/tags/:tagName&:_post")
-  //   async deleteTagFromPost(session: WebSessionDoc, _post: ObjectId, tagName: string) {
-  //     const user = WebSession.getUser(session);
-  //     await Post.isAuthor(user, _post);
-  //     const tag = (await PostTags.getContentByTagName(tagName)).taggedContent;
-  //     console.log("Deleting tag does work!! but mongoDB sends a strange error");
-  //     return await PostTags.deleteContent(tag._id, _post);
-  //   }
+  @Router.put("/tags/posts/:tagName&:_post")
+  async deleteTagFromPost(session: WebSessionDoc, _post: ObjectId, tagName: string) {
+    const user = WebSession.getUser(session);
+    await Post.isAuthor(user, _post);
+    const tag = (await PostTags.getContentByTagName(tagName)).taggedContent;
+    if (!tag) throw new BadValuesError("Tag search gone bad");
 
-  //   @Router.put("/boards/tags/:tagName&:_board")
-  //   async deleteTagFromBoard(session: WebSessionDoc, _board: ObjectId, tagName: string) {
-  //     const user = WebSession.getUser(session);
-  //     await Board.isAuthor(user, _board);
-  //     const tag = (await BoardTags.getContentByTagName(tagName)).taggedContent;
-  //     console.log("Deleting tag does work!! but mongoDB sends a strange error");
-  //     return await BoardTags.deleteContent(tag._id, _board);
-  //   }
+    await PostTags.deleteContent(tag._id, _post);
+    await Post.deleteTag(tagName, _post);
+    return { msg: "successfully updated" };
+  }
+
+  @Router.put("/tags/boards/:tagName&:_board")
+  async deleteTagFromBoard(session: WebSessionDoc, _board: ObjectId, tagName: string) {
+    const user = WebSession.getUser(session);
+    await Board.isAuthor(user, _board);
+    const tag = (await BoardTags.getContentByTagName(tagName)).taggedContent;
+    if (!tag) throw new BadValuesError("Tag search gone bad");
+
+    await BoardTags.deleteContent(tag._id, _board);
+    await Board.deleteTag(tagName, _board);
+    return { msg: "successfully updated" };
+  }
 }
 
 export default getExpressRouter(new Routes());

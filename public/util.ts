@@ -174,18 +174,18 @@ const operations: operation[] = [
     method: "PATCH",
     fields: { tagName: "input", id: "input" },
   },
-  // {
-  //   name: "Delete Tag from Post",
-  //   endpoint: "api/posts/tags/:tagName&:post",
-  //   method: "PUT",
-  //   fields: { tagName: "input", post: "input" },
-  // },
-  // {
-  //   name: "Delete Tag from Board",
-  //   endpoint: "api/boards/tags/:tagName&:board",
-  //   method: "PUT",
-  //   fields: { tagName: "input", board: "input" },
-  // },
+  {
+    name: "Delete Tag from Post",
+    endpoint: "api/tags/posts/:tagName&:post",
+    method: "PUT",
+    fields: { tagName: "input", post: "input" },
+  },
+  {
+    name: "Delete Tag from Board",
+    endpoint: "api/tags/boards/:tagName&:board",
+    method: "PUT",
+    fields: { tagName: "input", board: "input" },
+  },
 ];
 
 // Do not edit below here.

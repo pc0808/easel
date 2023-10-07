@@ -92,6 +92,7 @@ export default class ContentConcept<T>{
     return { msg: "Successfully updated!" };
   }
   async deleteTag(tagName: string, _id: ObjectId) {
+    // doesn't require tag already in post, result same nonetheless 
     const tags = await this.getTags(_id);
     const newTags = tags.filter(t => (t !== tagName));
     this.update(_id, { tagged: newTags });
@@ -104,7 +105,7 @@ export default class ContentConcept<T>{
 
   private sanitizeUpdate(update: Partial<ContentDoc<T>>) {
     // Make sure the update cannot change the author.
-    const allowedUpdates = ["caption", "content"];
+    const allowedUpdates = ["caption", "content", "tagged"];
     for (const key in update) {
       if (!allowedUpdates.includes(key)) {
         throw new NotAllowedError(`Cannot update '${key}' field!`);
