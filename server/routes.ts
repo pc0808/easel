@@ -109,7 +109,6 @@ class Routes {
 
   @Router.get("/posts/tags/:_id")
   async getTagsUnderPost(_id: ObjectId) {
-    console.log(await Post.getTags(_id));
     return await Post.getTags(_id);
   }
 
@@ -172,7 +171,7 @@ class Routes {
     const user = WebSession.getUser(session);
     await Board.isAuthor(user, _board);
     await Post.getContentByID(_post); //will check that this post actually exists 
-    //console.log("Before update id:", _id, "\n post:", _postid, "\n");
+
     return await Board.addPostToBoard(_board, _post);
   }
 
@@ -211,9 +210,7 @@ class Routes {
     const tag = (await PostTags.getContentByTagName(tagName)).taggedContent;
     if (!tag) throw new BadValuesError("Tag search gone bad");
 
-    // console.log("Adding tag does work!! but mongoDB sends a strange error");
     await PostTags.addContent(tag._id, _post);
-    console.log("bug after adding to TAG instance");
     await Post.addTag(tagName, _post);
     return { msg: "Successful update" }
   }

@@ -77,9 +77,7 @@ export default class ContentConcept<T>{
   }
 
   async getTags(_id: ObjectId) {
-    console.log("Working?");
     const cont = await this.getContentByID(_id);
-    console.log(cont);
     if (cont) { return cont.content.tagged }
     else { throw new NotFoundError("Content w given ID not found") }
   }
