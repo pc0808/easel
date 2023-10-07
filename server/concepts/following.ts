@@ -28,10 +28,9 @@ export default class FollowingConcept {
         return { msg: "Following successful", object: this.following.readOne(filter) };
     }
     async unfollowUser(_id: ObjectId, user: ObjectId) {
-        throw new Error("Not yet implemented!");
-    }
-    async delete(filter: Partial<FollowingDoc>) {
-        throw new Error("Not yet implemented!");
+        await this.isFollowing(_id, user);
+        await this.following.deleteOne({ user1: _id, user2: user });
+        return { msg: "Unfollow successful" }
     }
     private async isFollowing(_id: ObjectId, user: ObjectId) {
         const following = await this.following.readOne({ user1: _id, user2: user });

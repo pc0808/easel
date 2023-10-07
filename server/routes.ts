@@ -278,7 +278,9 @@ class Routes {
   }
   @Router.post("/followers/:username")
   async unfollowUser(session: WebSessionDoc, username: string) {
-    throw new Error("Not yet implemented!");
+    const user1 = WebSession.getUser(session);
+    const user2 = (await User.getUserByUsername(username))._id;
+    return await Following.unfollowUser(user1, user2);
   }
 }
 
