@@ -102,10 +102,16 @@ class Routes {
     return { msg: post.msg, post: post };
   }
 
+  @Router.get("/posts/tags/:_id")
+  async getTagsUnderPost(_id: ObjectId) {
+    console.log(await Post.getTags(_id));
+    return await Post.getTags(_id);
+  }
+
   @Router.post("/posts")
   async createPost(session: WebSessionDoc, caption: string, content: string, options?: ContentOptions) {
     const user = WebSession.getUser(session);
-    const created = await Post.create(user, caption, content, options);
+    const created = await Post.create(user, caption, content, [], options);
     return { msg: created.msg, post: await Responses.post(created.content) };
   }
 
@@ -194,6 +200,11 @@ class Routes {
     return { msg: board.msg, board: board.content };
   }
 
+  @Router.get("/boards/tags/:_id")
+  async getTagsUnderBoard(_id: ObjectId) {
+    return Board.getTags(_id);
+  }
+
   @Router.post("/boards")
   async createBoard(session: WebSessionDoc, caption: string) {
     const user = WebSession.getUser(session);
@@ -228,28 +239,29 @@ class Routes {
   ////////////////////////////////
   // TAGS CONCEPT DOWN BELOW /////
   ////////////////////////////////
-  // @Router.get("/posts/tags/:tagName")
-  // async getTaggedPosts(session: WebSessionDoc, tagName: string) {
-  //   WebSession.isLoggedIn(session);
-  //   const posts = await PostTags.getContentByTagName(tagName);
-  //   return { msg: posts.msg, posts: posts.taggedContent.content };
-  // }
+  //   @Router.get("/posts/tags/:tagName")
+  //   async getTaggedPosts(session: WebSessionDoc, tagName: string) {
+  //     WebSession.isLoggedIn(session);
+  //     return await PostTags.getContentByTagName(tagName);
+  //   }
 
-  // @Router.get("/boards/tags/:tagName")
-  // async getTaggedBoards(session: WebSessionDoc, tagName: string) {
-  //   WebSession.isLoggedIn(session);
-  //   const boards = await BoardTags.getContentByTagName(tagName);
-  //   return { msg: boards.msg, boards: boards.taggedContent.content };
-  // }
-
+  //   @Router.get("/boards/tags/:tagName")
+  //   async getTaggedBoards(session: WebSessionDoc, tagName: string) {
+  //     WebSession.isLoggedIn(session);
+  //     return await BoardTags.getContentByTagName(tagName);
+  //   }
 
   //   @Router.patch("/posts/tags/:tagName&:_post")
   //   async addTagToPost(session: WebSessionDoc, _post: ObjectId, tagName: string) {
   //     const user = WebSession.getUser(session);
   //     await Post.isAuthor(user, _post);
   //     const tag = (await PostTags.getContentByTagName(tagName)).taggedContent;
-  //     console.log("Adding tag does work!! but mongoDB sends a strange error");
-  //     return await PostTags.addContent(tag._id, _post);
+  //     if (!tag) throw new BadValuesError("Tag search gone bad");
+
+  //     // console.log("Adding tag does work!! but mongoDB sends a strange error");
+  //     await PostTags.addContent(tag._id, _post);
+  //     const postUpdate = await Post.addTag(tagName, _post);
+  //     return {msg: "Successful update", post: postUpdate}
   //   }
 
   //   @Router.patch("/boards/tags/:tagName&:_board")

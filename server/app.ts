@@ -14,5 +14,5 @@ export const Profile = new ProfileConcept();
 export const Post = new ContentConcept<string>("Posts");
 export const Board = new BoardConcept("Boards");
 export const Friend = new FriendConcept();
-export const PostTags = new TagsConcept<string>("Post Tags", Post);
-export const BoardTags = new TagsConcept<ObjectId[]>("Board Tags", Board); 
+export const PostTags = new TagsConcept<string>("Post Tags");
+export const BoardTags = new TagsConcept<ObjectId[]>("Board Tags"); 

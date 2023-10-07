@@ -1,16 +1,16 @@
 import { Filter, ObjectId } from "mongodb";
 
 import DocCollection, { BaseDoc } from "../framework/doc";
-import { NotAllowedError, NotFoundError } from "./errors";
+import { BadValuesError, NotAllowedError, NotFoundError } from "./errors";
 
 export interface ContentOptions {
-  tagged: string[];
 }
 
 export interface ContentDoc<T> extends BaseDoc {
   author: ObjectId;
   caption: string;
   content: T;
+  tagged: string[];
   options?: ContentOptions;
 }
 
@@ -21,9 +21,14 @@ export default class ContentConcept<T>{
     this.contents = new DocCollection<ContentDoc<T>>(name);
   }
 
-  async create(author: ObjectId, caption: string, content: T, options?: ContentOptions) {
-    const _id = await this.contents.createOne({ author, caption, content, options });
-    return { msg: "Content successfully created!", content: await this.contents.readOne({ _id }) };
+  async create(author: ObjectId, caption: string, content: T, tagged = [], options?: ContentOptions) {
+    const _id = await this.contents.createOne({
+      author, caption, content, tagged, options
+    });
+    return {
+      msg: "Content successfully created!",
+      content: await this.contents.readOne({ _id })
+    };
   }
 
   async getContents(query: Filter<ContentDoc<T>>) {
@@ -71,14 +76,30 @@ export default class ContentConcept<T>{
     throw new Error("Not yet implemented!");
   }
 
-  async getTags(_id: ObjectId): Promise<string[]> {
-    throw new Error("Not yet implemented");
+  async getTags(_id: ObjectId) {
+    console.log("Working?");
+    const cont = await this.getContentByID(_id);
+    console.log(cont);
+    if (cont) { return cont.content.tagged }
+    else { throw new NotFoundError("Content w given ID not found") }
   }
   async addTag(tagName: string, _id: ObjectId) {
-    throw new Error("Not yet implemented");
+    this.tagNotInPost(tagName, _id);
+    const tags = await this.getTags(_id);
+
+    tags.push(tagName);
+    this.update(_id, { tagged: tags })
+    return { msg: "Successfully updated!" };
   }
   async deleteTag(tagName: string, _id: ObjectId) {
-    throw new Error("Not yet implemented");
+    const tags = await this.getTags(_id);
+    const newTags = tags.filter(t => (t !== tagName));
+    this.update(_id, { tagged: newTags });
+    return { msg: "Successfully updated!" }
+  }
+  async tagNotInPost(tagName: string, _id: ObjectId) {
+    const tags = await this.getTags(_id);
+    if (new Set(tags).has(tagName)) throw new BadValuesError("Post already has given tagname");
   }
 
   private sanitizeUpdate(update: Partial<ContentDoc<T>>) {

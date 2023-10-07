@@ -1,6 +1,5 @@
 import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
-import ContentConcept from "./content";
 import { BadValuesError, NotAllowedError, NotFoundError } from "./errors";
 
 export interface TagsDoc extends BaseDoc {
@@ -12,11 +11,9 @@ const NOT_ALLOWED_TAGS: Set<string> = new Set(["", "easel"]);
 
 export default class TagsConcept<T> {
   public readonly tagged;
-  private readonly allContent: ContentConcept<T>;
 
-  public constructor(name: string, allContent: ContentConcept<T>) {
+  public constructor(name: string) {
     this.tagged = new DocCollection<TagsDoc>(name);
-    this.allContent = allContent;
   }
 
   /** makes new tag */
@@ -24,7 +21,10 @@ export default class TagsConcept<T> {
     await this.canCreate(tagName);
     this.tagIsAllowed(tagName);
     const _id = await this.tagged.createOne({ tagName: tagName, content: [] });
-    return { msg: "Tag created successfully!", tag: await this.tagged.readOne({ _id }) };
+    return {
+      msg: "Tag created successfully!",
+      taggedContent: await this.tagged.readOne({ _id })
+    };
   }
   /** deletes made tag */
   async delete(_id: ObjectId) {
@@ -39,7 +39,7 @@ export default class TagsConcept<T> {
   async getContent(_id: ObjectId) {
     const content = await this.tagged.readOne({ _id });
     if (content) {
-      return { msg: "Read successful!", PostBoard: content };
+      return { msg: "Read successful!", taggedContent: content };
     } else {
       throw new NotFoundError("Such a tag does not exist");
     }
@@ -50,7 +50,7 @@ export default class TagsConcept<T> {
     if (content) {
       return { msg: "Read successful!", taggedContent: content };
     } else {
-      throw new NotFoundError("Such a tag does not exist");
+      return await this.create(tagName); //creates new tag if not yet exist 
     }
   }
   /** taken from starter code, updates existing data */
@@ -61,13 +61,10 @@ export default class TagsConcept<T> {
   }
   /** adds post/board under given tag */
   async addContent(_id: ObjectId, content: ObjectId) {
-    //WILL MODIFY IN BETA FOR SYNCH W contentDoc.tagged
-
-    // await this.tagNotInContent(_id, content);
-    // await this.contentSameT(content);
-    // const tagData = (await this.getContent(_id)).PostBoard;
-    // tagData.content.push(content);
-    // await this.update(_id, { content: tagData.content });
+    await this.tagNotInContent(_id, content);
+    const tagData = (await this.getContent(_id)).taggedContent;
+    tagData.content.push(content);
+    await this.update(_id, { content: tagData.content });
 
     throw new Error("Not yet implemented!");
   }
@@ -89,11 +86,6 @@ export default class TagsConcept<T> {
     if (content) {
       throw new BadValuesError("Tag already created");
     } //else: means no content exists --> we are safe to create tag
-  }
-  /**checks tag has already been created */
-  private async alreadyCreated(_id: ObjectId) {
-    const ret = await this.getContent(_id);
-    if (!ret.PostBoard) throw new NotFoundError("Tag not yet created");
   }
   /** Checks given post/board not already in tags */
   private async tagNotInContent(_id: ObjectId, content: ObjectId) {
@@ -121,14 +113,6 @@ export default class TagsConcept<T> {
         throw new NotAllowedError(`Cannot update '${key}' field!`);
       }
     }
-  }
-  private async contentSameT(content: ObjectId) {
-    // const post = await this.allContent.getContentByID(content);
-    // this.allContent.contentExists(await this.allContent.getContentByID(content));
-
-    // if (!post) {
-    //   throw new NotFoundError("Can only add tags to elts of same type T");
-    // }
   }
 
   private tagIsAllowed(tagName: string) {
