@@ -62,46 +62,43 @@ const operations: operation[] = [
     method: "GET",
     fields: { username: "input" },
   },
-  {
-    name: "Get All Profiles",
-    endpoint: "/api/hello",
-    method: "GET",
-    fields: {},
-  },
 
   // POSTS 
 
 
-  // {
-  //   name: "Get Posts (empty for all)",
-  //   endpoint: "/api/posts",
-  //   method: "GET",
-  //   fields: { author: "input" },
-  // },
-  // {
-  //   name: "Get Post by ID",
-  //   endpoint: "/api/posts/:id",
-  //   method: "GET",
-  //   fields: { id: "input" },
-  // },
-  // {
-  //   name: "Create Post",
-  //   endpoint: "/api/posts",
-  //   method: "POST",
-  //   fields: { caption: "input", content: "input" },
-  // },
-  // {
-  //   name: "Update Post",
-  //   endpoint: "/api/posts/:id",
-  //   method: "PATCH",
-  //   fields: { id: "input", update: { caption: "input", content: "input" } },
-  // },
-  // {
-  //   name: "Delete Post",
-  //   endpoint: "/api/posts/:id",
-  //   method: "DELETE",
-  //   fields: { id: "input" },
-  // },
+  {
+    name: "Get Posts (empty for all)",
+    endpoint: "/api/posts",
+    method: "GET",
+    fields: { author: "input" },
+  },
+  {
+    name: "Get Post by ID",
+    endpoint: "/api/posts/:id",
+    method: "GET",
+    fields: { id: "input" },
+  },
+  {
+    name: "Create Post",
+    endpoint: "/api/posts",
+    method: "POST",
+    fields: { caption: "input", content: "input" },
+  },
+  {
+    name: "Update Post",
+    endpoint: "/api/posts/:id",
+    method: "PATCH",
+    fields: { id: "input", update: { caption: "input", content: "input" } },
+  },
+  {
+    name: "Delete Post",
+    endpoint: "/api/posts/:id",
+    method: "DELETE",
+    fields: { id: "input" },
+  },
+
+  // BOARDS 
+
   // {
   //   name: "Create Board",
   //   endpoint: "/api/boards",

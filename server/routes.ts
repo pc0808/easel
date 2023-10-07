@@ -1,9 +1,12 @@
 
 import { Router, getExpressRouter } from "./framework/router";
 
-import { Profile, User, WebSession } from "./app";
+import { ObjectId } from "mongodb";
+import { Post, Profile, User, WebSession } from "./app";
+import { ContentDoc, ContentOptions } from "./concepts/content";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
+import Responses from "./responses";
 
 class Routes {
   ///////////////////////////////////////
@@ -73,55 +76,51 @@ class Routes {
   @Router.get("/profiles/:username")
   async getProfileByUsername(username: string) {
     //userID: 
-    console.log("Is this working");
-    console.log(await User.getUserByUsername(username));
     const _id = (await User.getUserByUsername(username))._id;
-    console.log(username)
-    console.log("userid:", _id);
     return await Profile.getProfileByUser(_id);
   }
 
   ////////////////////////////////
   // POSTS CONCEPT DOWN BELOW ////
   ////////////////////////////////
-  // @Router.get("/posts")
-  // async getPosts(author?: string) {
-  //   let posts;
-  //   if (author) {
-  //     const id = (await User.getUserByUsername(author))._id;
-  //     posts = await Post.getByAuthor(id);
-  //   } else {
-  //     posts = await Post.getContents({});
-  //   }
-  //   return Responses.posts(posts);
-  // }
+  @Router.get("/posts")
+  async getPosts(author?: string) {
+    let posts;
+    if (author) {
+      const id = (await User.getUserByUsername(author))._id;
+      posts = await Post.getByAuthor(id);
+    } else {
+      posts = await Post.getContents({});
+    }
+    return Responses.posts(posts);
+  }
 
-  // @Router.get("/posts/:_id")
-  // async getPostByID(_id: ObjectId) {
-  //   const post = await Post.getContentByID(_id);
-  //   return { msg: post.msg, post: post };
-  // }
+  @Router.get("/posts/:_id")
+  async getPostByID(_id: ObjectId) {
+    const post = await Post.getContentByID(_id);
+    return { msg: post.msg, post: post };
+  }
 
-  // @Router.post("/posts")
-  // async createPost(session: WebSessionDoc, caption: string, content: string, options?: ContentOptions) {
-  //   const user = WebSession.getUser(session);
-  //   const created = await Post.create(user, caption, content, options);
-  //   return { msg: created.msg, post: await Responses.post(created.content) };
-  // }
+  @Router.post("/posts")
+  async createPost(session: WebSessionDoc, caption: string, content: string, options?: ContentOptions) {
+    const user = WebSession.getUser(session);
+    const created = await Post.create(user, caption, content, options);
+    return { msg: created.msg, post: await Responses.post(created.content) };
+  }
 
-  // @Router.patch("/posts/:_id")
-  // async updatePost(session: WebSessionDoc, _id: ObjectId, update: Partial<ContentDoc<string>>) {
-  //   const user = WebSession.getUser(session);
-  //   await Post.isAuthor(user, _id);
-  //   return await Post.update(_id, update);
-  // }
+  @Router.patch("/posts/:_id")
+  async updatePost(session: WebSessionDoc, _id: ObjectId, update: Partial<ContentDoc<string>>) {
+    const user = WebSession.getUser(session);
+    await Post.isAuthor(user, _id);
+    return await Post.update(_id, update);
+  }
 
-  //   @Router.delete("/posts/:_id")
-  //   async deletePost(session: WebSessionDoc, _id: ObjectId) {
-  //     const user = WebSession.getUser(session);
-  //     await Post.isAuthor(user, _id);
-  //     return Post.delete(_id);
-  //   }
+  @Router.delete("/posts/:_id")
+  async deletePost(session: WebSessionDoc, _id: ObjectId) {
+    const user = WebSession.getUser(session);
+    await Post.isAuthor(user, _id);
+    return Post.delete(_id);
+  }
 
   //   //////////////////////////////////
   //   // FRIENDS CONCEPT DOWN BELOW ////

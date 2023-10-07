@@ -4,14 +4,13 @@ import DocCollection, { BaseDoc } from "../framework/doc";
 import { NotAllowedError, NotFoundError } from "./errors";
 
 export interface ContentOptions {
-
+  tagged: string[];
 }
 
 export interface ContentDoc<T> extends BaseDoc {
   author: ObjectId;
   caption: string;
   content: T;
-  tagged: string[];
   options?: ContentOptions;
 }
 
@@ -22,8 +21,8 @@ export default class ContentConcept<T>{
     this.contents = new DocCollection<ContentDoc<T>>(name);
   }
 
-  async create(author: ObjectId, caption: string, content: T, tagged = [], options?: ContentOptions) {
-    const _id = await this.contents.createOne({ author, caption, content, tagged, options });
+  async create(author: ObjectId, caption: string, content: T, options?: ContentOptions) {
+    const _id = await this.contents.createOne({ author, caption, content, options });
     return { msg: "Content successfully created!", content: await this.contents.readOne({ _id }) };
   }
 
@@ -48,8 +47,9 @@ export default class ContentConcept<T>{
     await this.contents.deleteOne({ _id });
     return { msg: "Content deleted successfully!" };
   }
-  async deleteMany(username: string) {
-    throw new Error("Not yet implemented");
+  async deleteMany(userID: ObjectId) {
+    await this.contents.deleteMany({ author: userID });
+    return { msg: "Content deleted successfully!" };
   }
 
   async isAuthor(user: ObjectId, _id: ObjectId) {
