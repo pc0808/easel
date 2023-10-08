@@ -25,7 +25,7 @@ export default class FollowingConcept {
         await this.isNotFollowing(_id, user);
         const filter = { user1: _id, user2: user };
         await this.following.createOne(filter);
-        return { msg: "Following successful", object: this.following.readOne(filter) };
+        return { msg: "Following successful", object: await this.following.readOne(filter) };
     }
     async unfollowUser(_id: ObjectId, user: ObjectId) {
         await this.isFollowing(_id, user);

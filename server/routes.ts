@@ -4,7 +4,6 @@ import { Router, getExpressRouter } from "./framework/router";
 import { ObjectId } from "mongodb";
 import { Board, BoardTags, Following, Post, PostTags, Profile, User, WebSession } from "./app";
 import { ContentDoc, ContentOptions } from "./concepts/content";
-import { BadValuesError } from "./concepts/errors";
 import { ProfileDoc } from "./concepts/profile";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
@@ -53,6 +52,7 @@ class Routes {
     const userID = (await User.getUserById(user))._id;
     await Profile.delete(userID);
     await Post.deleteMany(userID);
+    // TO DO: DELETE BOARDS AND TAGS AS WELL!!
     return await User.delete(user);
   }
 
@@ -109,13 +109,14 @@ class Routes {
 
   @Router.get("/posts/tags/:_id")
   async getTagsUnderPost(_id: ObjectId) {
-    return await Post.getTags(_id);
+    const tags = (await PostTags.getContentFilter({ content: _id })).tags;
+    return { msg: "Read successful", tags: await Responses.getTags(tags) };
   }
 
   @Router.post("/posts")
   async createPost(session: WebSessionDoc, caption: string, content: string, options?: ContentOptions) {
     const user = WebSession.getUser(session);
-    const created = await Post.create(user, caption, content, [], options);
+    const created = await Post.create(user, caption, content, options);
     return { msg: created.msg, post: await Responses.post(created.content) };
   }
 
@@ -156,7 +157,8 @@ class Routes {
 
   @Router.get("/boards/tags/:_id")
   async getTagsUnderBoard(_id: ObjectId) {
-    return Board.getTags(_id);
+    const tags = (await BoardTags.getContentFilter({ content: _id })).tags;
+    return { msg: "Read successful", tags: await Responses.getTags(tags) };
   }
 
   @Router.post("/boards")
@@ -195,61 +197,56 @@ class Routes {
   ////////////////////////////////
   @Router.get("/tags/posts/:tagName")
   async getTaggedPosts(tagName: string) {
-    return await PostTags.getContentByTagName(tagName);
+    const tags = (await PostTags.getContentFilter({ tagName })).tags;
+    return { msg: "Read successful", tags: await Responses.getContentWithTag(tags) };
   }
 
   @Router.get("/tags/boards/:tagName")
   async getTaggedBoards(tagName: string) {
-    return await BoardTags.getContentByTagName(tagName);
+    const tags = (await BoardTags.getContentFilter({ tagName })).tags;
+    return { msg: "Read successful", tags: await Responses.getContentWithTag(tags) };
   }
 
   @Router.patch("/tags/posts/:tagName&:_post")
   async addTagToPost(session: WebSessionDoc, _post: ObjectId, tagName: string) {
     const user = WebSession.getUser(session);
     await Post.isAuthor(user, _post);
-    const tag = (await PostTags.getContentByTagName(tagName)).taggedContent;
-    if (!tag) throw new BadValuesError("Tag search gone bad");
+    await PostTags.create(tagName, _post);
+    const tags = (await PostTags.getContentFilter({ content: _post })).tags;
 
-    await PostTags.addContent(tag._id, _post);
-    await Post.addTag(tagName, _post);
-    return { msg: "Successful update" }
+    return { msg: "Successful update", tags: await Responses.getTags(tags) };
   }
 
   @Router.patch("/tags/boards/:tagName&:_board")
   async addTagToBoard(session: WebSessionDoc, _board: ObjectId, tagName: string) {
     const user = WebSession.getUser(session);
     await Board.isAuthor(user, _board);
-    const tag = (await BoardTags.getContentByTagName(tagName)).taggedContent;
+    await BoardTags.create(tagName, _board);
+    const tags = (await BoardTags.getContentFilter({ content: _board })).tags;
 
-    if (!tag) throw new BadValuesError("Tag search gone bad");
-
-    await BoardTags.addContent(tag._id, _board);
-    await Board.addTag(tagName, _board);
-    return { msg: "Successful update" }
+    return { msg: "Successful update", tags: await Responses.getTags(tags) };
   }
 
-  @Router.put("/tags/posts/:tagName&:_post")
+  @Router.delete("/tags/posts/:tagName&:_post")
   async deleteTagFromPost(session: WebSessionDoc, _post: ObjectId, tagName: string) {
     const user = WebSession.getUser(session);
     await Post.isAuthor(user, _post);
-    const tag = (await PostTags.getContentByTagName(tagName)).taggedContent;
-    if (!tag) throw new BadValuesError("Tag search gone bad");
 
-    await PostTags.deleteContent(tag._id, _post);
-    await Post.deleteTag(tagName, _post);
-    return { msg: "successfully updated" };
+    await PostTags.deleteContentTag(tagName, _post);
+
+    const tagsLeft = (await PostTags.getContentFilter({ content: _post })).tags;
+    return { msg: "successfully updated", tags: await Responses.getTags(tagsLeft) };
   }
 
-  @Router.put("/tags/boards/:tagName&:_board")
+  @Router.delete("/tags/boards/:tagName&:_board")
   async deleteTagFromBoard(session: WebSessionDoc, _board: ObjectId, tagName: string) {
     const user = WebSession.getUser(session);
     await Board.isAuthor(user, _board);
-    const tag = (await BoardTags.getContentByTagName(tagName)).taggedContent;
-    if (!tag) throw new BadValuesError("Tag search gone bad");
 
-    await BoardTags.deleteContent(tag._id, _board);
-    await Board.deleteTag(tagName, _board);
-    return { msg: "successfully updated" };
+    await BoardTags.deleteContentTag(tagName, _board);
+
+    const tagsLeft = (await BoardTags.getContentFilter({ content: _board })).tags;
+    return { msg: "successfully updated", tags: await Responses.getTags(tagsLeft) };
   }
 
   ////////////////////////////////

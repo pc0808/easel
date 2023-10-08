@@ -3,6 +3,7 @@ import { User } from "./app";
 import { ContentAuthorNotMatchError, ContentDoc } from "./concepts/content";
 import { FollowingDoc } from "./concepts/following";
 import { AlreadyFriendsError, FriendNotFoundError, FriendRequestAlreadyExistsError, FriendRequestNotFoundError } from "./concepts/friend";
+import { TagsDoc } from "./concepts/tags";
 import { Router } from "./framework/router";
 
 /**
@@ -56,6 +57,17 @@ export default class Responses {
   static async following(following: FollowingDoc[], followed: boolean) {
     const users: ObjectId[] = following.map(user => (followed ? user.user1 : user.user2));
     return users;
+  }
+
+  // given a list of tagsDoc read results, return just a list of the tagnames 
+  static async getTags(tags: TagsDoc[]) {
+    return tags.map(tag => (tag.tagName));
+  }
+
+  // given a list of tagsDoc read results, return just a list of the content
+  // assumes they all have same tag 
+  static async getContentWithTag(tags: TagsDoc[]) {
+    return tags.map(tag => (tag.content));
   }
 }
 

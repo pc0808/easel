@@ -182,14 +182,26 @@ const operations: operation[] = [
   {
     name: "Delete Tag from Post",
     endpoint: "api/tags/posts/:tagName&:post",
-    method: "PUT",
+    method: "DELETE",
     fields: { tagName: "input", post: "input" },
   },
   {
     name: "Delete Tag from Board",
     endpoint: "api/tags/boards/:tagName&:board",
-    method: "PUT",
+    method: "DELETE",
     fields: { tagName: "input", board: "input" },
+  },
+  {
+    name: "Delete Post Tag",
+    endpoint: "api/tags/deleteP/:tagName",
+    method: "DELETE",
+    fields: { tagname: "input" },
+  },
+  {
+    name: "Delete Board Tag",
+    endpoint: "api/tags/deleteB/:tagName",
+    method: "DELETE",
+    fields: { tagname: "input" },
   },
 
   // FOLLOWING 

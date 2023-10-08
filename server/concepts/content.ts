@@ -1,7 +1,7 @@
 import { Filter, ObjectId } from "mongodb";
 
 import DocCollection, { BaseDoc } from "../framework/doc";
-import { BadValuesError, NotAllowedError, NotFoundError } from "./errors";
+import { NotAllowedError, NotFoundError } from "./errors";
 
 export interface ContentOptions {
 }
@@ -10,7 +10,6 @@ export interface ContentDoc<T> extends BaseDoc {
   author: ObjectId;
   caption: string;
   content: T;
-  tagged: string[];
   options?: ContentOptions;
 }
 
@@ -21,9 +20,9 @@ export default class ContentConcept<T>{
     this.contents = new DocCollection<ContentDoc<T>>(name);
   }
 
-  async create(author: ObjectId, caption: string, content: T, tagged = [], options?: ContentOptions) {
+  async create(author: ObjectId, caption: string, content: T, options?: ContentOptions) {
     const _id = await this.contents.createOne({
-      author, caption, content, tagged, options
+      author, caption, content, options
     });
     return {
       msg: "Content successfully created!",
@@ -71,39 +70,10 @@ export default class ContentConcept<T>{
     await this.contents.updateOne({ _id }, update);
     return { msg: "Content successfully updated!" };
   }
-  //BETA:
-  async getUserProfile(_id: ObjectId) {
-    throw new Error("Not yet implemented!");
-  }
-
-  async getTags(_id: ObjectId) {
-    const cont = await this.getContentByID(_id);
-    if (cont) { return cont.content.tagged }
-    else { throw new NotFoundError("Content w given ID not found") }
-  }
-  async addTag(tagName: string, _id: ObjectId) {
-    this.tagNotInPost(tagName, _id);
-    const tags = await this.getTags(_id);
-
-    tags.push(tagName);
-    this.update(_id, { tagged: tags })
-    return { msg: "Successfully updated!" };
-  }
-  async deleteTag(tagName: string, _id: ObjectId) {
-    // doesn't require tag already in post, result same nonetheless 
-    const tags = await this.getTags(_id);
-    const newTags = tags.filter(t => (t !== tagName));
-    this.update(_id, { tagged: newTags });
-    return { msg: "Successfully updated!" }
-  }
-  async tagNotInPost(tagName: string, _id: ObjectId) {
-    const tags = await this.getTags(_id);
-    if (new Set(tags).has(tagName)) throw new BadValuesError("Post already has given tagname");
-  }
 
   private sanitizeUpdate(update: Partial<ContentDoc<T>>) {
     // Make sure the update cannot change the author.
-    const allowedUpdates = ["caption", "content", "tagged"];
+    const allowedUpdates = ["caption", "content"];
     for (const key in update) {
       if (!allowedUpdates.includes(key)) {
         throw new NotAllowedError(`Cannot update '${key}' field!`);
