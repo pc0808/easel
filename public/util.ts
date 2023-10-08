@@ -156,7 +156,7 @@ const operations: operation[] = [
   // TAGS
 
   {
-    name: "Get All Posts With Tag",
+    name: "Get Posts By Tag",
     endpoint: "/api/tags/posts/:tagName",
     method: "GET",
     fields: { tagName: "input" },
@@ -190,18 +190,6 @@ const operations: operation[] = [
     endpoint: "api/tags/boards/:tagName&:board",
     method: "DELETE",
     fields: { tagName: "input", board: "input" },
-  },
-  {
-    name: "Delete Post Tag",
-    endpoint: "api/tags/deleteP/:tagName",
-    method: "DELETE",
-    fields: { tagname: "input" },
-  },
-  {
-    name: "Delete Board Tag",
-    endpoint: "api/tags/deleteB/:tagName",
-    method: "DELETE",
-    fields: { tagname: "input" },
   },
 
   // FOLLOWING 

@@ -1,5 +1,6 @@
 import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
+import { ContentDoc } from "./content";
 import { BadValuesError, NotAllowedError, NotFoundError } from "./errors";
 
 export interface TagsDoc extends BaseDoc {
@@ -64,7 +65,7 @@ export default class TagsConcept<T> {
     return { msg: "Tag deleted!" };
   }
 
-  // matches tags with given filter attributes 
+  // matches tags with given content
   async deleteContent(content: ObjectId) {
     await this.tagged.deleteMany({ content });
     return { msg: "Delete successful" }
@@ -77,6 +78,14 @@ export default class TagsConcept<T> {
       content: content,
     });
     return { msg: "Delete successful" }
+  }
+
+  // deletes every tag associated w these posts 
+  async deleteMany(posts: ContentDoc<T>[]) {
+    for (const post of posts) {
+      await this.deleteContent(post._id);
+    }
+    return { msg: "successful" };
   }
 
   private sanitizeUpdate(update: Partial<TagsDoc>) {

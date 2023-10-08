@@ -47,12 +47,22 @@ class Routes {
   @Router.delete("/users")
   async deleteUser(session: WebSessionDoc) {
     const user = WebSession.getUser(session);
-    WebSession.end(session);
-
     const userID = (await User.getUserById(user))._id;
+
+    //delete profile 
     await Profile.delete(userID);
+
+    //delete user's posts and every tag associated w them
+    const posts = await Post.getByAuthor(userID);
+    await PostTags.deleteMany(posts);
     await Post.deleteMany(userID);
-    // TO DO: DELETE BOARDS AND TAGS AS WELL!!
+
+    //delete user's boards and every tag associated w them 
+    const boards = await Board.getByAuthor(userID);
+    await BoardTags.deleteMany(boards);
+    await Board.deleteMany(userID);
+
+    WebSession.end(session);
     return await User.delete(user);
   }
 
@@ -104,13 +114,14 @@ class Routes {
   @Router.get("/posts/:_id")
   async getPostByID(_id: ObjectId) {
     const post = await Post.getContentByID(_id);
-    return { msg: post.msg, post: post };
+    return { msg: post.msg, post: await Responses.post(post.content) };
   }
 
   @Router.get("/posts/tags/:_id")
   async getTagsUnderPost(_id: ObjectId) {
     const tags = (await PostTags.getContentFilter({ content: _id })).tags;
-    return { msg: "Read successful", tags: await Responses.getTags(tags) };
+    return tags ? { msg: "Read successful", tags: await Responses.getTags(tags) } :
+      { msg: "No match for search query " };
   }
 
   @Router.post("/posts")
@@ -131,6 +142,9 @@ class Routes {
   async deletePost(session: WebSessionDoc, _id: ObjectId) {
     const user = WebSession.getUser(session);
     await Post.isAuthor(user, _id);
+
+    //deletes post instance and every tag associated 
+    await PostTags.deleteContent(_id);
     return Post.delete(_id);
   }
 
@@ -158,7 +172,8 @@ class Routes {
   @Router.get("/boards/tags/:_id")
   async getTagsUnderBoard(_id: ObjectId) {
     const tags = (await BoardTags.getContentFilter({ content: _id })).tags;
-    return { msg: "Read successful", tags: await Responses.getTags(tags) };
+    return tags ? { msg: "Read successful", tags: await Responses.getTags(tags) } :
+      { msg: "No match for search query " };
   }
 
   @Router.post("/boards")
@@ -181,6 +196,9 @@ class Routes {
   async deleteBoard(session: WebSessionDoc, _id: ObjectId) {
     const user = WebSession.getUser(session);
     await Board.isAuthor(user, _id);
+
+    //deletes board instance and every tag associated 
+    await BoardTags.deleteContent(_id);
     return Board.delete(_id);
   }
 
@@ -198,13 +216,13 @@ class Routes {
   @Router.get("/tags/posts/:tagName")
   async getTaggedPosts(tagName: string) {
     const tags = (await PostTags.getContentFilter({ tagName })).tags;
-    return { msg: "Read successful", tags: await Responses.getContentWithTag(tags) };
+    return { msg: "Read successful", posts: await Responses.getContentWithTag(tags) };
   }
 
   @Router.get("/tags/boards/:tagName")
   async getTaggedBoards(tagName: string) {
     const tags = (await BoardTags.getContentFilter({ tagName })).tags;
-    return { msg: "Read successful", tags: await Responses.getContentWithTag(tags) };
+    return { msg: "Read successful", boards: await Responses.getContentWithTag(tags) };
   }
 
   @Router.patch("/tags/posts/:tagName&:_post")
@@ -250,7 +268,7 @@ class Routes {
   }
 
   ////////////////////////////////
-  // FRIENDS CONCEPT DOWN BELOW /////
+  // FRIENDS CONCEPT DOWN BELOW //
   ////////////////////////////////
   @Router.get("/following/:username")
   async getFollowing(username: string) {

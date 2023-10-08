@@ -32,6 +32,11 @@ export default class FollowingConcept {
         await this.following.deleteOne({ user1: _id, user2: user });
         return { msg: "Unfollow successful" }
     }
+    async deleteUser(user: ObjectId) {
+        await this.following.deleteMany({ user1: user });
+        await this.following.deleteMany({ user2: user });
+        return { msg: "User has unfollowed everyone, and removed every follower" };
+    }
     private async isFollowing(_id: ObjectId, user: ObjectId) {
         const following = await this.following.readOne({ user1: _id, user2: user });
         if (!following) throw new BadValuesError("Cannot unfollow if not already following");
