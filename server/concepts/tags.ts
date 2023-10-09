@@ -1,10 +1,10 @@
 import { ObjectId } from "mongodb";
 import DocCollection, { BaseDoc } from "../framework/doc";
-import { ContentDoc } from "./content";
 import { BadValuesError, NotAllowedError, NotFoundError } from "./errors";
 
 export interface TagsDoc extends BaseDoc {
   tagName: string;
+  author: ObjectId;
   content: ObjectId;
 }
 
@@ -18,11 +18,12 @@ export default class TagsConcept<T> {
   }
 
   /** makes new tag */
-  async create(tagName: string, content: ObjectId) {
+  async create(tagName: string, author: ObjectId, content: ObjectId) {
     this.tagIsAllowed(tagName);
-    await this.notExist(tagName, content);
+    await this.notExist(tagName, author, content);
     const _id = await this.tagged.createOne({
       tagName: tagName.toLowerCase(),
+      author: author,
       content: content,
     });
     return {
@@ -66,27 +67,28 @@ export default class TagsConcept<T> {
   }
 
   // matches tags with given content
-  async deleteContent(content: ObjectId) {
-    await this.tagged.deleteMany({ content });
-    return { msg: "Delete successful" }
+  async deleteFilter(filter: Partial<TagsDoc>) {
+    this.sanitizeFilter(filter);
+    await this.tagged.deleteMany(filter);
+    return { msg: "Delete(s) successful" }
   }
 
-  // matches tags with given tagName and content 
-  async deleteContentTag(tagName: string, content: ObjectId) {
-    await this.tagged.deleteOne({
-      tagName: tagName.toLowerCase(),
-      content: content,
-    });
-    return { msg: "Delete successful" }
-  }
+  // // matches tags with given tagName and content 
+  // async deleteContentTag(tagName: string, content: ObjectId) {
+  //   await this.tagged.deleteOne({
+  //     tagName: tagName.toLowerCase(),
+  //     content: content,
+  //   });
+  //   return { msg: "Delete successful" }
+  // }
 
-  // deletes every tag associated w these posts 
-  async deleteMany(posts: ContentDoc<T>[]) {
-    for (const post of posts) {
-      await this.deleteContent(post._id);
-    }
-    return { msg: "successful" };
-  }
+  // // deletes every tag associated w these posts 
+  // async deleteMany(posts: ContentDoc<T>[]) {
+  //   for (const post of posts) {
+  //     await this.deleteContent(post._id);
+  //   }
+  //   return { msg: "successful" };
+  // }
 
   private sanitizeUpdate(update: Partial<TagsDoc>) {
     // Make sure the update cannot change the author.
@@ -101,17 +103,16 @@ export default class TagsConcept<T> {
     if (NOT_ALLOWED_TAGS.has(tagName.toLowerCase())) {
       throw new BadValuesError("This tagname is not allowed");
     }
-    else if (tagName && tagName.charAt(0) === " ") {
-      throw new BadValuesError("Tagname cannot start with a space");
+    else if (tagName && tagName.split('').includes(" ")) {
+      throw new BadValuesError("Tagname cannot include a space");
     }
   }
-  private async notExist(tagName: string, content: ObjectId) {
-    if (await this.tagged.readOne({ tagName: tagName.toLowerCase(), content }))
+  private async notExist(tagName: string, author: ObjectId, content: ObjectId) {
+    if (await this.tagged.readOne({ tagName: tagName.toLowerCase(), author, content }))
       throw new BadValuesError("This content already has this tag!");
   }
 
   private sanitizeFilter(filter: Partial<TagsDoc>) {
-    //const better: Partial<TagsDoc> = ; 
     if (filter.tagName) filter.tagName = filter.tagName.toLowerCase();
   }
 }

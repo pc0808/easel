@@ -54,12 +54,12 @@ class Routes {
 
     //delete user's posts and every tag associated w them
     const posts = await Post.getByAuthor(userID);
-    await PostTags.deleteMany(posts);
+    await PostTags.deleteFilter({ author: userID });
     await Post.deleteMany(userID);
 
     //delete user's boards and every tag associated w them 
     const boards = await Board.getByAuthor(userID);
-    await BoardTags.deleteMany(boards);
+    await BoardTags.deleteFilter({ author: userID });
     await Board.deleteMany(userID);
 
     WebSession.end(session);
@@ -144,7 +144,7 @@ class Routes {
     await Post.isAuthor(user, _id);
 
     //deletes post instance and every tag associated 
-    await PostTags.deleteContent(_id);
+    await PostTags.deleteFilter({ content: _id });
     return Post.delete(_id);
   }
 
@@ -198,7 +198,7 @@ class Routes {
     await Board.isAuthor(user, _id);
 
     //deletes board instance and every tag associated 
-    await BoardTags.deleteContent(_id);
+    await BoardTags.deleteFilter({ content: _id });
     return Board.delete(_id);
   }
 
@@ -229,7 +229,7 @@ class Routes {
   async addTagToPost(session: WebSessionDoc, _post: ObjectId, tagName: string) {
     const user = WebSession.getUser(session);
     await Post.isAuthor(user, _post);
-    await PostTags.create(tagName, _post);
+    await PostTags.create(tagName, user, _post);
     const tags = (await PostTags.getContentFilter({ content: _post })).tags;
 
     return { msg: "Successful update", tags: await Responses.getTags(tags) };
@@ -239,7 +239,7 @@ class Routes {
   async addTagToBoard(session: WebSessionDoc, _board: ObjectId, tagName: string) {
     const user = WebSession.getUser(session);
     await Board.isAuthor(user, _board);
-    await BoardTags.create(tagName, _board);
+    await BoardTags.create(tagName, user, _board);
     const tags = (await BoardTags.getContentFilter({ content: _board })).tags;
 
     return { msg: "Successful update", tags: await Responses.getTags(tags) };
@@ -250,7 +250,7 @@ class Routes {
     const user = WebSession.getUser(session);
     await Post.isAuthor(user, _post);
 
-    await PostTags.deleteContentTag(tagName, _post);
+    await PostTags.deleteFilter({ tagName, author: user, content: _post });
 
     const tagsLeft = (await PostTags.getContentFilter({ content: _post })).tags;
     return { msg: "successfully updated", tags: await Responses.getTags(tagsLeft) };
@@ -261,7 +261,7 @@ class Routes {
     const user = WebSession.getUser(session);
     await Board.isAuthor(user, _board);
 
-    await BoardTags.deleteContentTag(tagName, _board);
+    await BoardTags.deleteFilter({ tagName, author: user, content: _board });
 
     const tagsLeft = (await BoardTags.getContentFilter({ content: _board })).tags;
     return { msg: "successfully updated", tags: await Responses.getTags(tagsLeft) };
