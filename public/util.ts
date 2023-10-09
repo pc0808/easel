@@ -84,12 +84,6 @@ const operations: operation[] = [
     fields: { id: "input" },
   },
   {
-    name: "Get Tags Under Post",
-    endpoint: "/api/posts/tags/:id",
-    method: "GET",
-    fields: { id: "input" },
-  },
-  {
     name: "Create Post",
     endpoint: "/api/posts",
     method: "POST",
@@ -129,12 +123,6 @@ const operations: operation[] = [
     fields: { id: "input" },
   },
   {
-    name: "Get Tags Under Board",
-    endpoint: "/api/boards/tags/:id",
-    method: "GET",
-    fields: { id: "input" },
-  },
-  {
     name: "Add Post to Board",
     endpoint: "api/boards/:board&:post",
     method: "PATCH",
@@ -156,27 +144,27 @@ const operations: operation[] = [
   // TAGS
 
   {
-    name: "Get Posts By Tag",
-    endpoint: "/api/tags/posts/:tagName",
-    method: "GET",
-    fields: { tagName: "input" },
+    name: "Get Tags of Posts (Author/Post ID)",
+    endpoint: "/api/tags/posts",
+    method: "PATCH",
+    fields: { filter: { tagName: "input", content: "input" } },
   },
   {
-    name: "Get Boards by Tag",
-    endpoint: "/api/tags/boards/:tagName",
-    method: "GET",
-    fields: { tagName: "input" },
+    name: "Get Tags of Boards (Author/Board ID)",
+    endpoint: "/api/tags/boards",
+    method: "PATCH",
+    fields: { filter: { tagName: "input", content: "input" } },
   },
   {
     name: "Add Tag to Post",
     endpoint: "api/tags/posts/:tagName&:id",
-    method: "PATCH",
+    method: "POST",
     fields: { tagName: "input", id: "input" },
   },
   {
     name: "Add Tag to Board",
     endpoint: "api/tags/boards/:tagName&:id",
-    method: "PATCH",
+    method: "POST",
     fields: { tagName: "input", id: "input" },
   },
   {

@@ -5,6 +5,7 @@ import { ObjectId } from "mongodb";
 import { Board, BoardTags, Following, Post, PostTags, Profile, User, WebSession } from "./app";
 import { ContentDoc, ContentOptions } from "./concepts/content";
 import { ProfileDoc } from "./concepts/profile";
+import { TagsDoc } from "./concepts/tags";
 import { UserDoc } from "./concepts/user";
 import { WebSessionDoc } from "./concepts/websession";
 import Responses from "./responses";
@@ -91,6 +92,7 @@ class Routes {
 
   @Router.patch("/profiles")
   async updateProfile(session: WebSessionDoc, update: Partial<ProfileDoc>) {
+    console.log(update, update.avatar, update.biography);
     const user = WebSession.getUser(session);
     const profile = (await Profile.getProfileByUser(user))._id;
     return await Profile.update(profile, update); //assures new usrn is okay 
@@ -115,13 +117,6 @@ class Routes {
   async getPostByID(_id: ObjectId) {
     const post = await Post.getContentByID(_id);
     return { msg: post.msg, post: await Responses.post(post.content) };
-  }
-
-  @Router.get("/posts/tags/:_id")
-  async getTagsUnderPost(_id: ObjectId) {
-    const tags = (await PostTags.getContentFilter({ content: _id })).tags;
-    return tags ? { msg: "Read successful", tags: await Responses.getTags(tags) } :
-      { msg: "No match for search query " };
   }
 
   @Router.post("/posts")
@@ -169,13 +164,6 @@ class Routes {
     return { msg: board.msg, board: board.content };
   }
 
-  @Router.get("/boards/tags/:_id")
-  async getTagsUnderBoard(_id: ObjectId) {
-    const tags = (await BoardTags.getContentFilter({ content: _id })).tags;
-    return tags ? { msg: "Read successful", tags: await Responses.getTags(tags) } :
-      { msg: "No match for search query " };
-  }
-
   @Router.post("/boards")
   async createBoard(session: WebSessionDoc, caption: string) {
     const user = WebSession.getUser(session);
@@ -213,19 +201,25 @@ class Routes {
   ////////////////////////////////
   // TAGS CONCEPT DOWN BELOW /////
   ////////////////////////////////
-  @Router.get("/tags/posts/:tagName")
-  async getTaggedPosts(tagName: string) {
-    const tags = (await PostTags.getContentFilter({ tagName })).tags;
-    return { msg: "Read successful", posts: await Responses.getContentWithTag(tags) };
+  @Router.patch("/tags/posts")
+  async getTaggedPosts(filter: Partial<TagsDoc>) {
+    console.log(filter, filter.tagName, filter.author, filter.content);
+    console.log((await PostTags.getContentFilter({ author: filter.author })).tags);
+    return {
+      msg: "Read successful",
+      posts: (await PostTags.getContentFilter(filter)).tags,
+    };
   }
 
-  @Router.get("/tags/boards/:tagName")
-  async getTaggedBoards(tagName: string) {
-    const tags = (await BoardTags.getContentFilter({ tagName })).tags;
-    return { msg: "Read successful", boards: await Responses.getContentWithTag(tags) };
+  @Router.patch("/tags/boards")
+  async getTaggedBoards(filter: Partial<TagsDoc>) {
+    return {
+      msg: "Read successful",
+      boards: (await BoardTags.getContentFilter(filter)).tags,
+    };
   }
 
-  @Router.patch("/tags/posts/:tagName&:_post")
+  @Router.post("/tags/posts/:tagName&:_post")
   async addTagToPost(session: WebSessionDoc, _post: ObjectId, tagName: string) {
     const user = WebSession.getUser(session);
     await Post.isAuthor(user, _post);
@@ -235,7 +229,7 @@ class Routes {
     return { msg: "Successful update", tags: await Responses.getTags(tags) };
   }
 
-  @Router.patch("/tags/boards/:tagName&:_board")
+  @Router.post("/tags/boards/:tagName&:_board")
   async addTagToBoard(session: WebSessionDoc, _board: ObjectId, tagName: string) {
     const user = WebSession.getUser(session);
     await Board.isAuthor(user, _board);

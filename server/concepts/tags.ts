@@ -47,6 +47,9 @@ export default class TagsConcept<T> {
   /** gets content matching the TagsDoc attributes in filter */
   async getContentFilter(filter: Partial<TagsDoc>) {
     this.sanitizeFilter(filter);
+    console.log("maybe here?");
+    console.log(filter);
+    console.log(await this.tagged.readMany({ author: filter.author }));
     const tags = await this.tagged.readMany(filter, {
       sort: { dateCreated: -1 },
     });
@@ -73,26 +76,9 @@ export default class TagsConcept<T> {
     return { msg: "Delete(s) successful" }
   }
 
-  // // matches tags with given tagName and content 
-  // async deleteContentTag(tagName: string, content: ObjectId) {
-  //   await this.tagged.deleteOne({
-  //     tagName: tagName.toLowerCase(),
-  //     content: content,
-  //   });
-  //   return { msg: "Delete successful" }
-  // }
-
-  // // deletes every tag associated w these posts 
-  // async deleteMany(posts: ContentDoc<T>[]) {
-  //   for (const post of posts) {
-  //     await this.deleteContent(post._id);
-  //   }
-  //   return { msg: "successful" };
-  // }
-
   private sanitizeUpdate(update: Partial<TagsDoc>) {
     // Make sure the update cannot change the author.
-    const allowedUpdates = ["content"];
+    const allowedUpdates = ["tagName"];
     for (const key in update) {
       if (!allowedUpdates.includes(key)) {
         throw new NotAllowedError(`Cannot update '${key}' field!`);
