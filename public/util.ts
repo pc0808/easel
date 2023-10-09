@@ -144,13 +144,13 @@ const operations: operation[] = [
   // TAGS
 
   {
-    name: "Get Tags of Posts (Author/Post ID)",
+    name: "Get Tags of Posts (Post ID)",
     endpoint: "/api/tags/posts",
     method: "PATCH",
     fields: { filter: { tagName: "input", content: "input" } },
   },
   {
-    name: "Get Tags of Boards (Author/Board ID)",
+    name: "Get Tags of Boards (Board ID)",
     endpoint: "/api/tags/boards",
     method: "PATCH",
     fields: { filter: { tagName: "input", content: "input" } },
